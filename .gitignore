@@ -1,0 +1,34 @@
+# Зависимости
+node_modules/
+.pnp
+.pnp.js
+
+# Сборки и кэш
+dist/
+dist-zip/
+build/
+.vite/
+.cache/
+
+# Логи и отладка
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# Переменные окружения (секреты)
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Системные и мусорные файлы OS/Редакторов
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

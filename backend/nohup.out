@@ -1,0 +1,11 @@
+
+> gas-backend@1.0.0 dev
+> node --watch server.js
+
+GAS Backend запущен на порту 5000
+nohup: can't execute 'run': No such file or directory
+
+> gas-backend@1.0.0 dev
+> node --watch server.js
+
+GAS Backend запущен на порту 5000
