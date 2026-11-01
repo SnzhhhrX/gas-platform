@@ -1,0 +1,19 @@
+# Render Blueprint: New → Blueprint → выберите репозиторий.
+# Диск (disk) нужен, чтобы пользователи не пропадали при перезапуске. На Render он доступен с тарифа Starter.
+services:
+  - type: web
+    name: gas-geography
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_USERS
+        sync: false   # ваш логин в приложении, например: yourname
+    disk:
+      name: gas-data
+      mountPath: /data
+      sizeGB: 1

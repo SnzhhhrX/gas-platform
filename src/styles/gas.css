@@ -1,0 +1,37 @@
+/* Гас: лёгкая анимация. Всё выключается при prefers-reduced-motion. Изображение не меняется, двигаются только детали. */
+.mascot { overflow: visible; flex: none; }
+.mascot .m-eyes, .mascot .m-sprout, .mascot .m-arm, .mascot .m-spark, .mascot .m-z { transform-box: view-box; }
+@media (prefers-reduced-motion: no-preference) {
+  .mascot.anim .m-eyes { transform-origin: 60px 55px; animation: gas-blink 5.6s infinite; }
+  .mascot.anim .m-sprout { transform-origin: 60px 15px; animation: gas-sway 4.5s ease-in-out infinite; }
+  .mascot.anim.m-cheer, .mascot.anim.m-proud { animation: gas-hop .7s var(--ease-out, ease-out) both; }
+  .mascot.anim.m-oops { animation: gas-settle .5s var(--ease-out, ease-out) both; }
+  .mascot.anim.m-wave .m-arm { transform-origin: 104px 64px; animation: gas-wave 1.1s ease-in-out 2 .2s; }
+  .mascot.anim .m-spark { transform-origin: 60px 20px; animation: gas-twinkle 1.8s ease-in-out infinite; }
+  .mascot.anim .m-z { animation: gas-z 3s ease-in-out infinite; }
+}
+@keyframes gas-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+@keyframes gas-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes gas-hop { 0% { transform: translateY(6px) scale(.96, 1.03); } 45% { transform: translateY(-9px); } 100% { transform: none; } }
+@keyframes gas-settle { from { transform: translateY(-4px); } to { transform: none; } }
+@keyframes gas-wave { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-16deg); } 70% { transform: rotate(14deg); } }
+@keyframes gas-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.92); } }
+@keyframes gas-z { 0%, 100% { opacity: .55; transform: translateY(2px); } 50% { opacity: 1; transform: translateY(-3px); } }
+.mascot.m-oops .m-sprout { transform: rotate(-14deg); transform-origin: 60px 15px; }
+.mascot.m-sleep .m-sprout { transform: rotate(18deg); transform-origin: 60px 15px; }
+
+/* Реплика Гаса: персонаж + облачко. Один компонент для приветствия, поддержки и итогов. */
+.gas-says { display: flex; align-items: center; gap: 10px; }
+.gas-says .bubble { position: relative; flex: 1; min-width: 0; padding: 10px 14px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.gas-says .bubble::before { content: ''; position: absolute; left: -6px; top: 50%; width: 11px; height: 11px; margin-top: -6px; background: inherit; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg); }
+.gas-says .bubble b { display: block; font-size: .95rem; line-height: 1.3; }
+.gas-says .bubble small { display: block; margin-top: 2px; color: var(--muted); font-size: .8rem; line-height: 1.35; }
+.gas-hello { margin: 2px 0 14px; }
+.gas-hello .bubble { animation: rise .35s var(--ease-out, ease-out) both; }
+@media (prefers-reduced-motion: reduce) { .gas-hello .bubble { animation: none; } }
+
+/* Обратная связь в уроке и итог */
+.lesson .feedback .fb-head { display: flex; align-items: center; gap: 10px; }
+.lesson .feedback .fb-head b { margin-bottom: 2px; }
+.lesson .feedback .fb-note { display: block; color: var(--muted); font-size: .82rem; line-height: 1.35; }
+.lesson .result .res-head { color: var(--text); }

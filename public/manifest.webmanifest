@@ -1,0 +1,13 @@
+{
+  "name": "GAS — география за 5 минут",
+  "short_name": "GAS",
+  "description": "Изучай географию как в Duolingo: уроки, карта мира, XP и серии",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f2",
+  "theme_color": "#16a34a",
+  "lang": "ru",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,12 @@
+/* Профиль и окошко Гаса: правила из присланного архива, которых не было в проекте */
+.profile-edit:active, .profile-settings:active, .plink:active, .phs:active, .profile-page .ach:active, .card.pro:active, .btn:active, .btn.ghost:active, .sc:active, .icon:active { transform: scale(.96); }
+.profile-page .section-title { margin: 18px 0 8px; font-size: .95rem; font-weight: 800; color: var(--soft); letter-spacing: -.01em; }
+.profile-tabs { display: flex; background: var(--line); border-radius: 14px; padding: 3px; margin-bottom: 14px; gap: 2px; }
+.profile-tabs button { flex: 1; text-align: center; padding: 9px 6px; border-radius: 11px; font-weight: 750; font-size: .84rem; color: var(--muted); transition: background var(--dur-2), color var(--dur-2); }
+.profile-tabs button.on { background: var(--card); color: var(--text); box-shadow: var(--sh-1); }
+.profile-level { border: 1.5px solid var(--line); }
+.plink { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 16px; background: color-mix(in srgb, #f59e0b 8%, var(--card)); border: 1.5px solid color-mix(in srgb, #f59e0b 28%, var(--line)); margin-bottom: 4px; transition: transform var(--dur-1); }
+.plink:active { transform: scale(.98); }
+.plink-txt { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.plink-txt b { font-size: .92rem; font-weight: 800; }
+@media (max-width: 400px) { .profile-hero-stats .phs b { font-size: 1.15rem; } }

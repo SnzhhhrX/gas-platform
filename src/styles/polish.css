@@ -1,0 +1,673 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   GAS Geography · polish.css — финальный слой интерфейса (v18.15)
+   Подключается ПОСЛЕ styles.css и только уточняет его:
+   1. токены (тени, easing, длительности)
+   2. общие компоненты: кнопки, карточки, поля, вкладки
+   3. навигация: нижняя панель (телефон/планшет) и сайдбар (десктоп)
+   4. десктопные раскладки: Путь, Профиль, Блиц, Вход
+   5. шторки, диалоги, уведомления
+   6. система анимаций (одна на всё приложение)
+   7. prefers-reduced-motion — в самом конце, с !important
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Токены ─────────────────────────────────────────────────────── */
+:root {
+  --ease-soft: cubic-bezier(.22, 1, .36, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-1: 140ms;
+  --dur-2: 240ms;
+  --dur-3: 420ms;
+  --sh-1: 0 1px 2px rgba(16, 42, 28, .06), 0 1px 3px rgba(16, 42, 28, .04);
+  --sh-2: 0 2px 6px rgba(16, 42, 28, .05), 0 14px 28px -12px rgba(16, 42, 28, .16);
+  --sh-3: 0 8px 16px rgba(16, 42, 28, .06), 0 32px 64px -20px rgba(16, 42, 28, .28);
+  --ring: color-mix(in srgb, var(--green) 38%, transparent);
+  --nav-w: 16.5rem;
+  --gutter: clamp(28px, 4vw, 64px);
+  --page-max: 70rem;
+  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='11' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='9'/%3E%3Cellipse cx='18' cy='18' rx='4' ry='9'/%3E%3Cpath d='M9 18h18'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] {
+  --sh-1: 0 1px 2px rgba(0, 0, 0, .35);
+  --sh-2: 0 2px 6px rgba(0, 0, 0, .3), 0 16px 32px -12px rgba(0, 0, 0, .55);
+  --sh-3: 0 8px 16px rgba(0, 0, 0, .35), 0 36px 72px -20px rgba(0, 0, 0, .7);
+  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='11' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%230b110e' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='9'/%3E%3Cellipse cx='18' cy='18' rx='4' ry='9'/%3E%3Cpath d='M9 18h18'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* На больших мониторах интерфейс растёт вместе с шрифтом, а не теряется на экране */
+@media (min-width: 1536px) { html { font-size: 17px; } }
+@media (min-width: 1920px) { html { font-size: 18px; } }
+
+/* ── 2. Общие компоненты ───────────────────────────────────────────── */
+html { scroll-behavior: smooth; text-rendering: optimizeLegibility; }
+:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+.card { box-shadow: var(--sh-1); }
+.card, .stat, .action-row, .jp-mc, .learn-cta, .plink, .lrow, .urow {
+  transition: transform var(--dur-2) var(--ease-soft), box-shadow var(--dur-2) var(--ease-soft),
+    border-color var(--dur-1), background-color var(--dur-1);
+}
+.btn { transition: transform var(--dur-1) var(--ease-soft), box-shadow var(--dur-1) var(--ease-soft), filter var(--dur-2), background-color var(--dur-2); }
+.btn:focus-visible { outline-offset: 3px; }
+.form input, .form textarea, .edit-profile input, .edit-profile textarea, .edit-profile select, .app.auth .form input {
+  transition: border-color var(--dur-1), box-shadow var(--dur-2) var(--ease-soft), background-color var(--dur-1);
+}
+.form input:focus, .form textarea:focus, .edit-profile input:focus, .edit-profile textarea:focus,
+.edit-profile select:focus, .app.auth .form input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px var(--ring);
+  outline: none;
+}
+.bar i, .jp-mc-bar i { transition: width .8s var(--ease-soft); }
+
+/* Сегменты и вкладки: активная «таблетка» мягко подсвечена */
+.seg button, .jp-tabs button, .tabs button { transition: background-color var(--dur-2) var(--ease-soft), color var(--dur-2), transform var(--dur-1) var(--ease-soft); }
+.jp-tabs button.on, .seg button.on { box-shadow: var(--sh-1); }
+.jp-tabs button:not(.on):hover { color: var(--text); }
+
+/* Тонкие полосы прокрутки на десктопе */
+@media (hover: hover) and (pointer: fine) {
+  * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 40%, transparent) transparent; }
+  .btn:not(:disabled):hover { filter: brightness(1.06); }
+  .btn:not(:disabled):hover:active { transform: translateY(3px); filter: none; }
+  .btn.ghost:not(:disabled):hover { filter: none; background: var(--green-l); }
+
+  .action-row:hover, .jp-mc:not(.lock):hover, .learn-cta:hover, .plink:hover,
+  .profile-page .ach:hover, .lrow:not(:disabled):hover, .urow:hover {
+    box-shadow: var(--sh-2);
+  }
+  .action-row:hover:active, .jp-mc:hover:active, .learn-cta:hover:active, .plink:hover:active,
+  .profile-page .ach:hover:active, .lrow:hover:active { transform: translateY(1px); box-shadow: none; }
+  .hero-action:hover:active { transform: scale(.98); }
+}
+
+/* ── 3. Навигация: телефон и планшет (нижняя панель) ───────────────── */
+.app > nav[aria-label] {
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.5) blur(16px);
+  backdrop-filter: saturate(1.5) blur(16px);
+  border-top: 1px solid var(--line);
+}
+.app > nav[aria-label] > button {
+  border: 0;
+  gap: 4px;
+  min-height: 56px;
+  background: none;
+  color: var(--muted);
+  transition: color var(--dur-2), transform var(--dur-1) var(--ease-soft);
+}
+.app > nav[aria-label] > button .ico {
+  width: 58px;
+  height: 30px;
+  border-radius: 99px;
+  place-items: center;
+  transform: none;
+  transition: background-color var(--dur-2) var(--ease-soft), color var(--dur-2);
+}
+.app > nav[aria-label] > button.on { background: none; border: 0; color: var(--green-d); }
+:root[data-theme='dark'] .app > nav[aria-label] > button.on { color: var(--green); }
+.app > nav[aria-label] > button.on .ico { background: var(--green-l); color: inherit; transform: none; }
+.app > nav[aria-label] > button:not(.on):hover { background: none; color: var(--text); }
+.app > nav[aria-label] > button:active { transform: scale(.93); }
+.app > nav[aria-label] .ico .dot { top: -4px; right: 4px; }
+
+/* Планшет: панель на всю ширину, пункты собраны по центру */
+@media (min-width: 640px) and (max-width: 959px) {
+  .app > nav[aria-label] {
+    left: 0; transform: none; width: 100%;
+    justify-content: center;
+    padding-inline: max(16px, calc((100% - 560px) / 2));
+  }
+  .app > nav[aria-label] > button { font-size: .78rem; }
+}
+
+/* ── 4. Десктоп ≥ 960px ────────────────────────────────────────────── */
+@media (min-width: 960px) {
+  /* Каркас: сайдбар прижат к левому краю окна, контент центрируется в оставшейся области */
+  .app:not(.focus):not(.auth):not(.splash) {
+    max-width: none;
+    margin: 0;
+    padding: 40px var(--gutter) 80px calc(var(--nav-w) + var(--gutter));
+  }
+  .app > main > .page { max-width: 48rem; margin-inline: auto; }
+  .app > main > .page:has(> .learn),
+  .app > main > .page:has(> .profile-page),
+  .app > main > .page:has(> .blitz-hub) { max-width: var(--page-max); }
+  .app > main > .page > :is(.stats, .card, .modes, .board, .ach-grid, .phead) { max-width: none; }
+
+  /* Сайдбар */
+  .app > nav[aria-label] {
+    left: 0;
+    width: var(--nav-w);
+    padding: 28px 16px 24px;
+    gap: 4px;
+    border: 0;
+    border-right: 1px solid var(--line);
+    background: var(--card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .app > nav[aria-label]::before {
+    content: 'GAS';
+    display: flex;
+    align-items: center;
+    height: 40px;
+    margin: 0 0 28px;
+    padding: 0 12px 0 54px;
+    background: var(--logo) no-repeat 10px center / 36px 36px;
+    color: var(--text);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: -.03em;
+  }
+  .app > nav[aria-label] > button {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    min-height: 50px;
+    padding: 0 14px;
+    border-radius: 14px;
+    color: var(--soft);
+    font-size: .96rem;
+    font-weight: 750;
+    letter-spacing: 0;
+  }
+  .app > nav[aria-label] > button .ico { width: 24px; height: 24px; border-radius: 0; background: none; }
+  .app > nav[aria-label] > button.on { background: var(--green-l); color: var(--green-d); }
+  :root[data-theme='dark'] .app > nav[aria-label] > button.on { color: var(--green); }
+  .app > nav[aria-label] > button.on .ico { background: none; }
+  .app > nav[aria-label] > button.on::after {
+    content: '';
+    position: absolute;
+    left: -16px; top: 12px; bottom: 12px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--green);
+  }
+  .app > nav[aria-label] > button:not(.on):hover { background: color-mix(in srgb, var(--line) 55%, transparent); color: var(--text); }
+  .app > nav[aria-label] .ico .dot { top: -6px; right: -9px; }
+
+  .toast { top: 28px; bottom: auto; left: calc(50% + var(--nav-w) / 2); box-shadow: var(--sh-3); }
+
+  /* Заголовки страниц */
+  .page > h1, .page-head h1, .learn-head h1 { font-size: clamp(1.9rem, 2.4vw, 2.3rem); }
+  .page-sub { font-size: 1rem; }
+  .card { padding: 22px; border-radius: 20px; }
+}
+
+/* Путь: основная колонка + прилипающая панель прогресса */
+.learn-rail { display: flex; flex-direction: column; }
+@media (min-width: 1100px) {
+  .learn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 21.5rem;
+    column-gap: 56px;
+    align-items: start;
+    overflow: clip;
+  }
+  .learn > .learn-head { grid-column: 1 / -1; margin-bottom: 8px; }
+  .learn > .learn-rail {
+    grid-column: 2;
+    grid-row: 2 / span 12;
+    position: sticky;
+    top: 32px;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 22px;
+    border-radius: 24px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--sh-1);
+  }
+  .learn-rail .learn-overview { margin: 0; }
+  .learn-rail .learn-overview .bar { height: 10px; }
+  .learn > :not(.learn-head):not(.learn-rail) { grid-column: 1; }
+  .jp-tabs { margin-top: 16px; max-width: 28rem; }
+  .jp-track { max-width: 34rem; margin-inline: auto; }
+  .jp-node { --amp: 84px; }
+  .jp-cap { max-width: 190px; }
+  .jp-chap-label { width: 100%; }
+  .jp-chap-label b { max-width: min(92%, 30rem); }
+  .learn-rail > * { margin-block: 0; }
+}
+@media (min-width: 1500px) {
+  .jp-list .jp-stage { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
+  .jp-list .jp-stage > .jp-st { grid-column: 1 / -1; }
+}
+
+/* Профиль: слева карточка игрока, справа вкладки */
+.profile-side, .profile-main { display: flex; flex-direction: column; }
+@media (min-width: 1100px) {
+  .profile-page { flex-direction: row; align-items: flex-start; gap: 48px; overflow: visible; }
+  .profile-side { flex: 0 0 22.5rem; position: sticky; top: 32px; gap: 16px; }
+  .profile-hero {
+    padding: 28px 20px 22px;
+    margin: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--sh-1);
+  }
+  .profile-hero-actions { top: 14px; right: 14px; }
+  .profile-level { margin: 0; border-width: 1px; border-radius: 24px; padding: 18px 20px; box-shadow: var(--sh-1); }
+  .profile-main { flex: 1 1 0; min-width: 0; }
+  .profile-page .ach-grid { grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+}
+
+/* Блиц: тренировки в две колонки */
+@media (min-width: 700px) {
+  .blitz-hub .action-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .blitz-hub .pro-strip { margin-top: 18px; }
+}
+
+/* ── 4b. Вход / регистрация: карточка на фоне с градусной сеткой ────── */
+@media (min-width: 640px) {
+  .app.auth {
+    max-width: 30rem;
+    margin: clamp(24px, 9vh, 104px) auto;
+    padding: 44px 44px 36px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    box-shadow: var(--sh-3);
+    position: relative;
+    z-index: 1;
+    animation: enter-pop .7s var(--ease-soft) backwards;
+  }
+  .app.auth .corner { right: 18px; top: 18px; }
+  body:has(.app.auth)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      var(--graticule) no-repeat right -12vmin bottom -22vmin / 92vmin 92vmin,
+      var(--graticule) no-repeat left -18vmin top -26vmin / 64vmin 64vmin;
+    opacity: .9;
+  }
+}
+:root {
+  --graticule: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800' fill='none' stroke='%2316a34a' stroke-opacity='.2' stroke-width='1.6'%3E%3Ccircle cx='400' cy='400' r='380'/%3E%3Cellipse cx='400' cy='400' rx='300' ry='380'/%3E%3Cellipse cx='400' cy='400' rx='190' ry='380'/%3E%3Cellipse cx='400' cy='400' rx='80' ry='380'/%3E%3Cpath d='M400 20v760M20 400h760M71 210h658M71 590h658M210 71h380M210 729h380'/%3E%3Cpath d='M250 560q150-240 330-150' stroke-dasharray='6 9' stroke-opacity='.5'/%3E%3Ccircle cx='250' cy='560' r='6' fill='%2316a34a' stroke='none' fill-opacity='.45'/%3E%3Ccircle cx='580' cy='410' r='6' fill='%2316a34a' stroke='none' fill-opacity='.45'/%3E%3C/svg%3E");
+}
+:root[data-theme='dark'] {
+  --graticule: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800' fill='none' stroke='%2316a34a' stroke-opacity='.16' stroke-width='1.6'%3E%3Ccircle cx='400' cy='400' r='380'/%3E%3Cellipse cx='400' cy='400' rx='300' ry='380'/%3E%3Cellipse cx='400' cy='400' rx='190' ry='380'/%3E%3Cellipse cx='400' cy='400' rx='80' ry='380'/%3E%3Cpath d='M400 20v760M20 400h760M71 210h658M71 590h658M210 71h380M210 729h380'/%3E%3Cpath d='M250 560q150-240 330-150' stroke-dasharray='6 9' stroke-opacity='.5'/%3E%3Ccircle cx='250' cy='560' r='6' fill='%2316a34a' stroke='none' fill-opacity='.4'/%3E%3Ccircle cx='580' cy='410' r='6' fill='%2316a34a' stroke='none' fill-opacity='.4'/%3E%3C/svg%3E");
+}
+
+/* ── 4c. Экраны-фокусы (урок, блиц, атлас, настройки) на десктопе ──── */
+@media (min-width: 960px) {
+  .app.focus { max-width: 52rem; padding-top: 32px; padding-bottom: 56px; }
+}
+
+/* ── 5. Шторки, диалоги, уведомления ───────────────────────────────── */
+.overlay {
+  background: rgba(8, 16, 11, .46);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: fade .24s var(--ease-soft);
+}
+.sheet { animation: sheet-in .46s var(--ease-soft) backwards; box-shadow: var(--sh-3); }
+@media (min-width: 640px) {
+  .sheet { animation: dialog-in .42s var(--ease-spring) backwards; }
+}
+.toast { box-shadow: var(--sh-3); animation: toast-spring .5s var(--ease-spring) backwards; }
+.feedback { animation: feedback-in .42s var(--ease-spring) backwards; }
+
+/* ── 6. Анимации: только функциональные (шторки, уведомления, ответы) ── */
+@keyframes enter-pop { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(32px); } }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(.97); } }
+@keyframes toast-spring { from { opacity: 0; transform: translateX(-50%) translateY(14px); } }
+@keyframes feedback-in { from { opacity: 0; transform: translateY(10px); } }
+/* страницы, пути, полоски — без каскадов и покачиваний */
+.page > *, .learn > *, .blitz-hub > *, .friends-page > *, .profile-side > *, .profile-main > *, .profile-panel > *,
+.jp-node, .jp-pill, .learn-overview .bar i, .profile-level .bar i, .jp-mc-bar i, .row .bar i, .barv i { animation: none; }
+.qimg:hover { transform: none; box-shadow: none; }
+
+/* ── 7. Уважаем «уменьшить движение» (всегда последним) ────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .jp-pill { animation: none !important; }
+}
+
+/* ── 8. Тёмная тема: кнопки того же зелёного, что и в светлой; фон подстроен под него ── */
+:root[data-theme='dark'] {
+  --bg: #111e1d;
+  --card: #1a2b29;
+  --line: #2d4440;
+  --text: #f0f7f4;
+  --soft: #cfded8;
+  --muted: #8ba69d;
+  --green: #16a34a;      /* как в светлой теме */
+  --green-d: #15803d;    /* нижняя кромка кнопок — как в светлой теме */
+  --green-l: #153a27;
+  --green-t: #4ade80;    /* только для текста и иконок на тёмном фоне */
+  --red: #ef4444;
+  --red-l: #3b2326;
+  --sea1: #163532;
+  --sea2: #102927;
+  --grid: rgba(160, 230, 200, .07);
+  --lockc: #2d4440;
+  --lockic: #6b8a80;
+  --ring: color-mix(in srgb, var(--green-t) 45%, transparent);
+  --sh-1: none;
+  --sh-2: 0 6px 18px -8px rgba(0, 0, 0, .55);
+  --sh-3: 0 20px 48px -16px rgba(0, 0, 0, .7);
+}
+:root[data-theme='dark'] .app > nav[aria-label] { background: var(--bg); border-color: var(--line); }
+:root[data-theme='dark'] .card, :root[data-theme='dark'] .profile-side,
+:root[data-theme='dark'] .ps { border: 2px solid var(--line); box-shadow: none; }
+@media (min-width: 1100px) { :root[data-theme='dark'] .learn-rail { border: 2px solid var(--line); box-shadow: none; } }
+:root[data-theme='dark'] .jp-tabs, :root[data-theme='dark'] .seg { background: var(--card); border: 2px solid var(--line); }
+:root[data-theme='dark'] .jp-tabs button.on, :root[data-theme='dark'] .seg button.on { background: var(--line); color: var(--text); box-shadow: none; }
+:root[data-theme='dark'] .bar { background: var(--line); }
+/* светло-зелёный — только там, где зелёный служит текстом/иконкой */
+:root[data-theme='dark'] :is(.badge:not(.gold), .btn.ghost, .feedback.right, .chip.add, .today),
+:root[data-theme='dark'] .app > nav[aria-label] > button.on { color: var(--green-t); }
+:root[data-theme='dark'] ::selection { background: color-mix(in srgb, var(--green) 45%, transparent); }
+
+/* ── 9. Шапка профиля: плоская и чистая, без коробок внутри коробок ── */
+.profile-hero {
+  padding: 28px 18px 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--sh-1);
+}
+.profile-hero .profile-settings {
+  width: 36px; height: 36px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+.profile-hero .profile-settings:hover { background: var(--green-l); color: var(--green-d); }
+.profile-hero-actions { top: 12px; right: 12px; }
+/* показатели: просто четыре колонки между двумя тонкими линиями */
+.profile-hero .profile-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 18px 0 16px;
+  padding: 10px 0;
+  background: none;
+  border: solid var(--line);
+  border-width: 1px 0;
+  border-radius: 0;
+}
+.profile-hero .profile-hero-stats .phs {
+  position: relative;
+  gap: 2px;
+  padding: 4px 2px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.profile-hero .profile-hero-stats .phs + .phs::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 14%; bottom: 14%;
+  width: 1px;
+  background: var(--line);
+}
+.profile-hero .phs-ico { width: auto; height: auto; background: none; color: var(--k); }
+.profile-hero .profile-hero-stats .phs b { font-size: 1.3rem; }
+.profile-hero .profile-hero-stats .phs span:last-child { font-size: .72rem; font-weight: 700; color: var(--muted); }
+/* «Изменить профиль» — спокойная кнопка с обводкой по центру */
+.profile-hero .profile-edit {
+  display: flex;
+  width: fit-content;
+  min-height: 42px;
+  margin: 0 auto;
+  padding: 0 22px;
+  background: none;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+  box-shadow: none;
+}
+.profile-hero .profile-edit .pe-txt { color: inherit; }
+@media (hover: hover) and (pointer: fine) {
+  .profile-hero .profile-edit:hover { background: var(--green-l); border-color: var(--green); }
+}
+.profile-hero .syncline { margin: 12px 0 0; justify-content: center; font-size: .74rem; opacity: .8; }
+
+/* Планшет и узкий ноутбук: личность слева, показатели и кнопка справа */
+@media (min-width: 640px) and (max-width: 1099px) {
+  .profile-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    column-gap: 32px;
+    align-items: center;
+    padding: 56px 28px 26px;
+  }
+  .profile-hero > .profile-id { grid-column: 1; grid-row: 1 / span 3; }
+  .profile-hero > .profile-hero-stats { grid-column: 2; margin-top: 0; }
+  .profile-hero > .profile-edit { grid-column: 2; }
+  .profile-hero > .syncline { grid-column: 2; }
+}
+
+/* ── 10. Профиль: минимализм — одна карточка игрока, прогресс внутри неё ── */
+.profile-side {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+}
+.profile-side .profile-hero { background: none; border: 0; border-radius: 0; box-shadow: none; margin: 0; }
+.profile-side .profile-level {
+  margin: 0;
+  padding: 18px 20px 20px;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+}
+.profile-hero .syncline:not(.bad) { display: none; }
+@media (min-width: 1100px) { .profile-side { gap: 0; } }
+
+/* ── 11. Pro-статистика ── */
+.ps { background: var(--card); border: 1px solid var(--line); border-radius: 22px; }
+.ps-sec { padding: 18px 20px; }
+.ps-sec + .ps-sec { border-top: 1px solid var(--line); }
+.ps-h { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 14px; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ps-h span:last-child { text-transform: none; letter-spacing: 0; font-weight: 700; }
+.ps-top { display: flex; align-items: center; gap: 20px; }
+.ps-ring {
+  position: relative; flex: none; width: 88px; height: 88px; border-radius: 50%;
+  background: conic-gradient(var(--green) calc(var(--p) * 1%), var(--line) 0);
+  display: grid; place-items: center;
+}
+.ps-ring::before { content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--card); }
+.ps-ring b { position: relative; font-size: 1.15rem; font-weight: 900; }
+.ps-nums { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ps-nums div { display: flex; flex-direction: column; gap: 2px; }
+.ps-nums b { font-size: 1.45rem; font-weight: 900; line-height: 1.1; }
+.ps-nums small { font-size: .74rem; font-weight: 700; color: var(--muted); }
+.ps-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.ps-cal em { font-style: normal; text-align: center; font-size: .68rem; font-weight: 800; color: var(--muted); }
+.ps-cal i { display: grid; place-items: center; aspect-ratio: 1.35; max-height: 40px; border-radius: 9px; background: color-mix(in srgb, var(--line) 70%, transparent); font-style: normal; }
+.ps-cal i span { font-size: .68rem; font-weight: 700; color: var(--muted); }
+.ps-cal i.blank { background: none; }
+.ps-cal i.l1 { background: color-mix(in srgb, var(--green) 28%, var(--card)); }
+.ps-cal i.l2 { background: color-mix(in srgb, var(--green) 58%, var(--card)); }
+.ps-cal i.l3 { background: var(--green); }
+.ps-cal i.l2 span, .ps-cal i.l3 span { color: #fff; }
+.ps-cal i.today { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--text); }
+.ps-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 7px 0; }
+.ps-name { font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ps-pct { font-size: .92rem; font-weight: 900; }
+.ps-pct.ok { color: var(--green); } .ps-pct.mid { color: #d97706; } .ps-pct.low { color: var(--red); }
+:root[data-theme='dark'] .ps-pct.ok { color: var(--green-t); }
+.ps-bar { grid-column: 1 / -1; height: 6px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.ps-bar i { display: block; height: 100%; border-radius: inherit; }
+.ps-bar i.ok { background: var(--green); } .ps-bar i.mid { background: #f59e0b; } .ps-bar i.low { background: var(--red); }
+.ps-mist { padding: 9px 0; border-top: 1px solid var(--line); }
+.ps-mist:first-of-type { border-top: 0; }
+.ps-empty { margin: 0; font-size: .9rem; color: var(--muted); }
+
+/* ── 12. Иллюстрации уроков: крупнее и спокойнее ── */
+.qimg { max-width: 440px; padding: 8px; border: 1px solid var(--line); border-radius: 18px; }
+.qimg svg { max-height: 240px; }
+
+/* ── 13. Скелетоны загрузки ── */
+.sk {
+  display: block;
+  flex: none;
+  max-width: 100%;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--muted) 24%, var(--bg)) 30%, color-mix(in srgb, var(--muted) 12%, var(--bg)) 50%, color-mix(in srgb, var(--muted) 24%, var(--bg)) 70%);
+  background-size: 220% 100%;
+  animation: sk-shimmer 1.4s linear infinite;
+}
+@keyframes sk-shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.sk-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; }
+.sk-chips { display: flex; gap: 8px; }
+.sk-rows { padding: 6px 14px; }
+.sk-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.sk-row + .sk-row { border-top: 1px solid var(--line); }
+.sk-podium { display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 10px; margin: 16px 0 14px; }
+.sk-podium > div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.sk-path { display: flex; flex-direction: column; align-items: center; gap: 28px; margin-top: 36px; }
+.sk-path > div { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none !important; } }
+
+/* ── 14. Иллюстрации в стиле платформы: плоско, «толстая» нижняя кромка как у кнопок ── */
+.qimg {
+  background: color-mix(in srgb, var(--green) 6%, var(--card));
+  border: 2px solid var(--line);
+  border-bottom-width: 5px;
+  border-radius: 22px;
+  padding: 12px;
+}
+.mascot { display: block; flex: none; }
+.lesson-intro > .mascot, .lesson-intro > .lart { margin: 0 auto 6px; }
+/* реплика персонажа вместо сухой плашки «Запомните» */
+.rd-say { display: flex; align-items: flex-end; gap: 6px; margin: 14px 0 4px; }
+.rd-say .bubble {
+  position: relative; flex: 1; min-width: 0;
+  padding: 13px 16px 14px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-bottom-width: 4px;
+  border-radius: 20px;
+}
+.rd-say .bubble::before {
+  content: ''; position: absolute; left: -9px; bottom: 22px; width: 14px; height: 14px;
+  background: var(--card); border: 2px solid var(--line); border-width: 0 0 2px 2px; border-radius: 0 0 0 5px;
+  transform: rotate(45deg);
+}
+.rd-say .bubble small { display: block; margin-bottom: 3px; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--green); }
+:root[data-theme='dark'] .rd-say .bubble small { color: var(--green-t); }
+.rd-say .bubble b { display: block; font-size: 1rem; line-height: 1.4; font-weight: 800; }
+/* плашка-сцена для уроков без схемы */
+.lart {
+  position: relative; display: grid; place-items: center; overflow: hidden;
+  width: 100%; max-width: 440px; height: 168px; margin: 0 auto 8px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--c) 16%, var(--card));
+  border: 2px solid color-mix(in srgb, var(--c) 34%, var(--line));
+  border-bottom-width: 5px;
+}
+.lart-dot { position: absolute; border-radius: 50%; background: color-mix(in srgb, var(--c) 30%, transparent); }
+.lart-stk {
+  position: absolute; top: 50%; display: grid; place-items: center; width: 56px; height: 56px;
+  border-radius: 18px; background: var(--c); color: #fff;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .18);
+}
+.lart-l { left: 14%; transform: translateY(-50%) rotate(-8deg); }
+.lart-r { right: 14%; width: 46px; height: 46px; border-radius: 15px; background: #fbbf24; transform: translateY(-50%) rotate(9deg); }
+.lart .mascot { position: relative; z-index: 1; }
+
+/* ── 15. Карточки модулей: единый стиль с кнопками (рамка + «толстая» нижняя кромка) ── */
+.learn-cta, .jp-path-head, .jp-mc {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-bottom-width: 5px;
+  border-radius: 22px;
+  box-shadow: none;
+}
+.learn-cta { gap: 14px; padding: 14px 16px 15px; }
+.learn-cta-ico {
+  width: 50px; height: 50px; border-radius: 16px;
+  background: var(--c, var(--green)); color: #fff;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .2);
+}
+.learn-cta-txt small, .jp-path-head small { font-size: .68rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--c, var(--green)); }
+.learn-cta-txt b { font-size: 1.05rem; font-weight: 800; }
+.learn-cta > svg:last-child {
+  box-sizing: content-box; width: 18px; height: 18px; padding: 8px; border-radius: 50%;
+  background: color-mix(in srgb, var(--c, var(--green)) 14%, var(--card)); color: var(--c, var(--green));
+}
+.learn-cta:active, .jp-mc:active { transform: translateY(3px); border-bottom-width: 2px; }
+.jp-path-head { padding: 12px 14px 13px; background: color-mix(in srgb, var(--c) 9%, var(--card)); border-color: color-mix(in srgb, var(--c) 30%, var(--line)); }
+.jp-path-head b { font-size: 1.05rem; font-weight: 800; }
+.jp-mc { padding: 13px 14px 14px; }
+@media (hover: hover) and (pointer: fine) {
+  .learn-cta:hover, .jp-mc:not(.lock):hover { border-color: color-mix(in srgb, var(--c, var(--green)) 55%, var(--line)); box-shadow: none; }
+}
+
+/* ── 16. Экран вопроса: чёткая иерархия — этап → вопрос → ответы → разбор ── */
+.lesson .kicker {
+  align-self: start; width: fit-content; padding: 5px 12px; border-radius: 99px;
+  background: color-mix(in srgb, var(--green) 12%, var(--card)); color: var(--green-d);
+  font-size: .7rem; font-weight: 800; letter-spacing: .06em;
+}
+:root[data-theme='dark'] .lesson .kicker { color: var(--green-t); }
+.lesson .question { max-width: none; width: 100%; text-wrap: pretty; margin: 10px 0 20px; font-size: clamp(1.3rem, 4.4vw, 1.7rem); line-height: 1.28; font-weight: 800; letter-spacing: -.02em; }
+.lesson .options { margin-top: 0; gap: 10px; }
+.lesson .option {
+  min-height: 58px; margin: 0; padding: 12px 14px;
+  border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 18px;
+  background: var(--card); box-shadow: none; font-size: 1rem; font-weight: 700;
+}
+.lesson .option > span:first-child { width: 32px; height: 32px; border-radius: 10px; border: 2px solid var(--line); background: var(--card); color: var(--muted); }
+@media (hover: hover) and (pointer: fine) {
+  .lesson .option:not(:disabled):hover { border-color: color-mix(in srgb, var(--green) 55%, var(--line)); }
+}
+.lesson .option:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+.lesson .option.picked { border-color: var(--green); background: color-mix(in srgb, var(--green) 10%, var(--card)); box-shadow: none; }
+.lesson .option.right { border-color: var(--green); background: color-mix(in srgb, var(--green) 14%, var(--card)); box-shadow: none; }
+.lesson .option.wrong { border-color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card)); box-shadow: none; }
+.lesson .option.right > span:first-child, .lesson .option.picked > span:first-child { border-color: var(--green); background: var(--green); color: #fff; }
+.lesson .option.wrong > span:first-child { border-color: var(--red); background: var(--red); color: #fff; }
+/* разбор ответа — нижняя панель с персонажем */
+.lesson .feedback { padding: 16px 18px 18px; border-width: 2px 0 0; border-radius: 24px 24px 0 0; }
+.lesson .feedback.right { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.lesson .feedback.wrong { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
+.fb-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.fb-head b { margin: 0; font-size: 1.15rem; }
+.lesson .feedback p { color: var(--text); opacity: .85; font-size: .95rem; margin: 0 0 4px; }
+.lesson .result .mascot { margin: 0 auto 4px; }
+
+/* подтверждение выхода из урока */
+.exit-sheet { display: grid; justify-items: center; gap: 10px; padding: 6px 2px 2px; text-align: center; }
+.exit-sheet h2 { margin: 4px 0 0; font-size: 1.35rem; }
+.exit-sheet p { margin: 0 0 8px; color: var(--muted); }
+.exit-sheet .btn { width: 100%; }
+.exit-sheet .btn.ghost.danger { background: transparent; box-shadow: none; color: var(--red); border: 2px solid color-mix(in srgb, var(--red) 40%, var(--line)); }
+@media (hover: hover) and (pointer: fine) { .exit-sheet .btn.ghost.danger:hover { background: var(--red-l); } }
+
+/* ── 17. Шапка профиля: минимализм — только аватар, имя и четыре числа ── */
+.profile-hero .phs-ico { display: none; }
+.profile-hero .profile-hero-stats { margin: 16px 0 6px; padding: 0; border-width: 0; }
+.profile-hero .profile-hero-stats .phs + .phs::before { display: none; }
+.profile-hero .profile-hero-stats .phs b { font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; }
+.profile-hero .profile-hero-stats .phs span:last-child { font-size: .74rem; font-weight: 600; }
+.profile-hero .badge { padding: 4px 10px; font-size: .74rem; font-weight: 700; opacity: .92; }
+.profile-hero .profile-handle { font-size: .9rem; }
+.profile-hero .profile-settings { opacity: .6; }
+.profile-hero .profile-settings:hover { opacity: 1; }
+.profile-hero .profile-edit {
+  min-height: 36px; padding: 0 12px; border: 0; border-radius: 12px;
+  background: none; color: var(--muted); font-size: .88rem; font-weight: 700;
+}
+.profile-hero .profile-edit svg { opacity: .8; }
+@media (hover: hover) and (pointer: fine) { .profile-hero .profile-edit:hover { background: color-mix(in srgb, var(--line) 55%, transparent); color: var(--text); } }
