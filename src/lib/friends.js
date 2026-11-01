@@ -10,3 +10,7 @@ export const declineFriend = (id) => api('/friends/decline', { method: 'POST', b
 export const removeFriend = (id) => api(`/friends/${id}`, { method: 'DELETE' })
 export const blockUser = (id) => api('/blocks', { method: 'POST', body: { id } })
 export const unblockUser = (id) => api(`/blocks/${id}`, { method: 'DELETE' })
+
+// Вызов друга на блиц: профиль друга шлёт событие, App открывает блиц с целью — рекордом друга
+export const CHALLENGE = 'gas:challenge'
+export const challengeFriend = (u) => dispatchEvent(new CustomEvent(CHALLENGE, { detail: { name: u.name, score: u.blitz ?? 0 } }))

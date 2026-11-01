@@ -8,7 +8,7 @@ import { play } from './lib/sound'
 import { applyTheme, getTheme, setTheme } from './lib/theme'
 import { gainXp, heartsOf, isRepeat, useStore } from './lib/store'
 import Atlas from './components/Atlas'
-import { acceptFriend, declineFriend, fetchFriends, fetchSuggestions, fetchUser, requestFriend, searchUsers } from './lib/friends'
+import { CHALLENGE, acceptFriend, declineFriend, fetchFriends, fetchSuggestions, fetchUser, requestFriend, searchUsers } from './lib/friends'
 import { usernameOf } from './lib/auth'
 import { Avatar, Empty } from './components/ui'
 import PublicProfile from './components/PublicProfile'
@@ -60,6 +60,7 @@ function Main({ uid, onLogout, onDelete }) {
   const [toast, setToast] = useState(null)
   const [pending, setPending] = useState(0)
   const [invited, setInvited] = useState(null)
+  const [rival, setRival] = useState(null) // вызов от друга: { name, score }
   const sound = state.profile.sound !== false
   const openPro = () => setProOpen(true)
 
@@ -76,6 +77,12 @@ function Main({ uid, onLogout, onDelete }) {
     const t = state.profile.theme
     if (t !== getTheme() && ['auto', 'light', 'dark'].includes(t)) setTheme(t)
   }, [state.profile.theme])
+
+  useEffect(() => {
+    const go = (e) => { setRival(e.detail); setGame('blitz') }
+    addEventListener(CHALLENGE, go)
+    return () => removeEventListener(CHALLENGE, go)
+  }, [])
 
   useEffect(() => {
     if (!viaServer()) return
@@ -139,7 +146,7 @@ function Main({ uid, onLogout, onDelete }) {
     return (
       <div className="app focus">
         <ErrorBoundary title="Блиц временно недоступен" onRetry={() => setGame(null)}>
-          <Blitz record={state.records.blitz} sound={sound} onFinish={finishBlitz} onExit={() => setGame(null)} />
+          <Blitz record={state.records.blitz} rival={rival} sound={sound} onFinish={finishBlitz} onExit={() => { setGame(null); setRival(null) }} />
         </ErrorBoundary>
       </div>
     )

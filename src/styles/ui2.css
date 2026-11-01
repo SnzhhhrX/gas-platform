@@ -368,7 +368,7 @@ nav[aria-label] .nb-dot {
 .fr-list { display: grid; gap: 10px; }
 .fr-skel { display: grid; gap: 10px; }
 .fcard { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 12px; align-items: center; width: 100%; padding: 14px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 20px; color: inherit; font: inherit; box-shadow: 0 3px 0 var(--line); }
-.fcard:hover { border-color: color-mix(in srgb, var(--green) 40%, var(--line)); }
+.fcard:hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); }
 .fc-av { position: relative; line-height: 0; }
 .fc-on { position: absolute; right: -1px; bottom: -1px; width: 13px; height: 13px; border-radius: 50%; background: var(--green); border: 2.5px solid var(--card); }
 .fc-main { display: grid; gap: 3px; min-width: 0; }

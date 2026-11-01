@@ -713,7 +713,7 @@ nav[aria-label] .ico .dot { margin: 0; position: absolute; top: -5px; right: -9p
 .home-fact svg { color: var(--green); flex: none; margin-top: 2px; }
 .learn-overview .bar { height: 8px; border-radius: 99px; }
 .hero-action:active { transform: scale(.98); }
-.action-row:hover { border-color: var(--green); }
+.action-row:hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); }
 .profile-hero h1 { margin: 0; font-size: 1.45rem; }
 .profile-hero-stats b { display: block; font-size: 1.2rem; font-weight: 800; }
 .profile-hero-stats small { font-size: .72rem; color: var(--muted); }
@@ -1079,14 +1079,14 @@ nav[aria-label] button.on { background: var(--green-l); border-color: var(--gree
   .splash-mark, .splash-bar i, .jp-node.cur .jp-ring, .chip.hot, .toast, .pl-map-pulse, .pl-map-pulse::before, .pl-map-pulse::after { animation: none; }
 }
 @media (hover: hover) {
-  .option:not(.right):not(.wrong):not(.dim):hover { border-color: var(--green); transform: translateX(3px); }
+  .option:not(.right):not(.wrong):not(.dim):hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); transform: translateX(3px); }
   nav[aria-label] button:not(.on):hover { background: var(--line); }
   .node:not(.locked):hover { filter: brightness(1.08); }
-  .mode:hover { border-color: color-mix(in srgb, var(--green) 35%, var(--line)); box-shadow: var(--shadow); }
+  .mode:hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); box-shadow: var(--shadow); }
   .sc:hover { box-shadow: var(--shadow); }
-  .stat.tap:hover { border-color: var(--green); }
+  .stat.tap:hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); }
   .invite:hover { border-color: color-mix(in srgb, #0ea5e9 40%, var(--line)); box-shadow: var(--shadow); }
-  .action-row:hover { border-color: var(--green); }
+  .action-row:hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); }
 }
 @media (max-width: 360px) {
   .goals { gap: 6px; }

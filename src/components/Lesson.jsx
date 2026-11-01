@@ -10,7 +10,7 @@ import Confetti from './Confetti'
 import QImage, { LESSON_IMG } from './QImage'
 import { Mascot, LessonArt, GasSays } from './Mascot'
 import { reaction, resultLine } from '../lib/gas'
-import { Sheet } from './ui'
+import { Inf, Sheet } from './ui'
 import { checkTyped } from '../lib/typed'
 import { ChallengeTimer } from './ProMedia'
 import FixRound from './FixRound'
@@ -194,7 +194,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
           <button className="chip" disabled={!hints || picked !== null} onClick={hint} aria-label="Подсказка">
             <Icon name="bulb" size={20} />{hints}
           </button>
-          <span className="chip heart"><Icon name="heart" size={20} />{localHearts === Infinity ? '∞' : (Number.isInteger(localHearts) ? localHearts : localHearts.toFixed(1))}</span>
+          <span className="chip heart"><Icon name="heart" size={20} />{localHearts === Infinity ? <Inf size={18} /> : (Number.isInteger(localHearts) ? localHearts : localHearts.toFixed(1))}</span>
         </div>
       </header>
 

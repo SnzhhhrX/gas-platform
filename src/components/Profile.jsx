@@ -157,10 +157,7 @@ export default function Profile({
     <div className="profile-page">
       <aside className="profile-side">
       <header className="profile-hero" style={{ '--pc': profile.color || 'var(--green)' }}>
-        <div className="profile-hero-actions">
-          <button type="button" className="pa" style={{ '--k': '#16a34a' }} onClick={() => setEdit(true)}><Icon name="edit" size={16} /><span>{tr('Изменить')}</span></button>
-          <button type="button" className="pa" style={{ '--k': '#0ea5e9' }} onClick={openSettings} aria-label={tr('Настройки')}><Icon name="settings" size={16} /><span>{tr('Настройки')}</span></button>
-        </div>
+        <button type="button" className="pf-gear-btn" onClick={openSettings} aria-label={tr('Настройки')} title={tr('Настройки')}><Icon name="settings" size={20} /></button>
 
         <div className="profile-id">
           <button type="button" className="profile-avatar-btn" onClick={onLogo} aria-label={tr('Аватар')}>
@@ -173,6 +170,7 @@ export default function Profile({
               <span className="badge">{tr(levelTitle(state.xp))}</span>
               {state.pro && <span className="badge gold"><Icon name="crown" size={12} /> Pro</span>}
             </div>
+            <button type="button" className="pf-edit-btn" onClick={() => setEdit(true)}><Icon name="edit" size={15} />{tr('Изменить профиль')}</button>
           </div>
         </div>
 

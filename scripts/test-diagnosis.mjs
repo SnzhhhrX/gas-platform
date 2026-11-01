@@ -80,7 +80,13 @@ const midAns = allRight.map((a) => (a.skill === 'water' ? { ...a, ok: false } : 
 ok(PL.makePlan(survey, midAns).result.startLevel === 'intermediate', 'одна тема с явным пробелом → не «продвинутый», а «средний»')
 ok(strong.plan.v === 5 && strong.plan.diag.length === 24, 'план v5 хранит ответы диагностики')
 ok(PR.planOf({ placement: { plan: strong.plan } }) === strong.plan, 'программа читает новый план')
-ok(PR.MODULES.filter((m) => !m.pro).every((m) => strong.plan.modes[m.id] === 'mastered'), 'все темы подтверждены → режим «проверка вместо уроков»')
+const indirect = ['hazards', 'continents', 'eco', 'kazakhstan']
+ok(PR.MODULES.filter((m) => !m.pro && !indirect.includes(m.id)).every((m) => strong.plan.modes[m.id] === 'mastered'), 'все темы подтверждены → режим «проверка вместо уроков»')
+ok(indirect.every((id) => strong.plan.modes[id] === 'fast'), 'темы, проверенные косвенно, не засчитываются целиком — только ускоренно')
+ok(strong.result.summary.checks > 0 && strong.result.summary.lessons > 0, 'итог считает и проверки, и оставшиеся уроки')
+const g5 = PL.makePlan({ ...survey, grade: '5' }, []).plan.order, g10 = PL.makePlan({ ...survey, grade: '10' }, []).plan.order
+ok(g10.indexOf('people') < g5.indexOf('people') && g10.indexOf('regions') < g5.indexOf('regions'), 'класс влияет на порядок: в 10 классе население и регионы раньше')
+ok(PL.makePlan({ ...survey, grade: '10' }, []).plan.why.people.some((t) => t.includes('10 класса')), 'причина называет класс')
 const weakPlan = PL.makePlan(survey, allWrong)
 ok(weakPlan.plan.weakSpots.length === 8 && weakPlan.plan.startLevel === 'beginner', 'везде неверно → все навыки в слабых местах, уровень «начинающий»')
 ok(weakPlan.plan.why.globe[0].includes('0 из 3'), 'причина по теме называет число ответов')

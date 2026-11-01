@@ -24,13 +24,13 @@
   --nav-w: 16.5rem;
   --gutter: clamp(28px, 4vw, 64px);
   --page-max: 70rem;
-  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='11' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='9'/%3E%3Cellipse cx='18' cy='18' rx='4' ry='9'/%3E%3Cpath d='M9 18h18'/%3E%3C/g%3E%3C/svg%3E");
+  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='26' stroke-linecap='round'%3E%3Ccircle cx='236' cy='290' r='146'/%3E%3Cellipse cx='236' cy='290' rx='62' ry='146'/%3E%3Cpath d='M102 240h268M102 340h268'/%3E%3C/g%3E%3Cpath d='M376 50c-40 0-72 32-72 72 0 54 72 126 72 126s72-72 72-126c0-40-32-72-72-72z' fill='%23facc15' stroke='%2316a34a' stroke-width='24' stroke-linejoin='round'/%3E%3Ccircle cx='376' cy='122' r='24' fill='%2316a34a'/%3E%3C/svg%3E");
 }
 :root[data-theme='dark'] {
   --sh-1: 0 1px 2px rgba(0, 0, 0, .35);
   --sh-2: 0 2px 6px rgba(0, 0, 0, .3), 0 16px 32px -12px rgba(0, 0, 0, .55);
   --sh-3: 0 8px 16px rgba(0, 0, 0, .35), 0 36px 72px -20px rgba(0, 0, 0, .7);
-  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='11' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%230b110e' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='9'/%3E%3Cellipse cx='18' cy='18' rx='4' ry='9'/%3E%3Cpath d='M9 18h18'/%3E%3C/g%3E%3C/svg%3E");
+  --logo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%2316a34a'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='26' stroke-linecap='round'%3E%3Ccircle cx='236' cy='290' r='146'/%3E%3Cellipse cx='236' cy='290' rx='62' ry='146'/%3E%3Cpath d='M102 240h268M102 340h268'/%3E%3C/g%3E%3Cpath d='M376 50c-40 0-72 32-72 72 0 54 72 126 72 126s72-72 72-126c0-40-32-72-72-72z' fill='%23facc15' stroke='%2316a34a' stroke-width='24' stroke-linejoin='round'/%3E%3Ccircle cx='376' cy='122' r='24' fill='%2316a34a'/%3E%3C/svg%3E");
 }
 
 /* На больших мониторах интерфейс растёт вместе с шрифтом, а не теряется на экране */
@@ -611,7 +611,7 @@ html { scroll-behavior: smooth; text-rendering: optimizeLegibility; }
 .jp-path-head b { font-size: 1.05rem; font-weight: 800; }
 .jp-mc { padding: 13px 14px 14px; }
 @media (hover: hover) and (pointer: fine) {
-  .learn-cta:hover, .jp-mc:not(.lock):hover { border-color: color-mix(in srgb, var(--c, var(--green)) 55%, var(--line)); box-shadow: none; }
+  .learn-cta:hover, .jp-mc:not(.lock):hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); box-shadow: none; }
 }
 
 /* ── 16. Экран вопроса: чёткая иерархия — этап → вопрос → ответы → разбор ── */
@@ -630,7 +630,7 @@ html { scroll-behavior: smooth; text-rendering: optimizeLegibility; }
 }
 .lesson .option > span:first-child { width: 32px; height: 32px; border-radius: 10px; border: 2px solid var(--line); background: var(--card); color: var(--muted); }
 @media (hover: hover) and (pointer: fine) {
-  .lesson .option:not(:disabled):hover { border-color: color-mix(in srgb, var(--green) 55%, var(--line)); }
+  .lesson .option:not(:disabled):hover { border-color: color-mix(in srgb, var(--text) 22%, var(--line)); }
 }
 .lesson .option:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
 .lesson .option.picked { border-color: var(--green); background: color-mix(in srgb, var(--green) 10%, var(--card)); box-shadow: none; }

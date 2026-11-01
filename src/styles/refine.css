@@ -1,0 +1,196 @@
+/* Wordmark GAS: текстовый знак, плотный трекинг, зелёная точка-акцент */
+.wordmark-text{display:inline-flex;align-items:baseline;font-family:'Manrope',system-ui,sans-serif;font-weight:800;line-height:1;letter-spacing:-.055em;color:var(--text);font-feature-settings:normal}
+.wordmark-text i{display:inline-block;width:.2em;height:.2em;margin-left:.06em;border-radius:50%;background:var(--dot,var(--green))}
+
+/* «Кто вы?»: список ролей, у школьника — ряд классов */
+.pl-class{display:grid;gap:8px;margin-top:4px;padding:12px;border-radius:var(--r);background:color-mix(in srgb,var(--green) 6%,var(--card));border:1.5px solid color-mix(in srgb,var(--green) 25%,var(--line))}
+.pl-class > small{color:var(--muted);font-size:.8rem;font-weight:700}
+.pl-classes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.pl-cls{display:grid;place-items:center;height:44px;padding:0;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font:inherit;font-size:1.05rem;font-weight:800;cursor:pointer;transition:border-color var(--motion-micro),background var(--motion-micro),color var(--motion-micro)}
+.pl-cls.picked{border-color:var(--green);background:var(--green);color:#fff}
+.pl-cls:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+@media (hover:hover){.pl-cls:not(.picked):hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+@media (max-width:360px){.pl-classes{gap:4px}.pl-cls{height:40px;font-size:.95rem}}
+
+/* Загрузка программы: темы собираются вокруг Гаса */
+.pl-load{gap:10px;padding:24px 16px}
+.pl-orbit{position:relative;display:grid;place-items:center;width:260px;height:260px;margin-bottom:6px}
+.pl-orbit > svg.pl-rsvg{position:absolute;left:50%;top:50%;width:150px;height:150px;transform:translate(-50%,-50%) rotate(-90deg)}
+.pl-orbit .rtrk{fill:none;stroke:var(--line);stroke-width:5}
+.pl-orbit .rbar{fill:none;stroke:var(--green);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .1s linear}
+.pl-core{position:relative;display:grid;place-items:center;animation:pl-bob 2.4s ease-in-out infinite}
+.pl-load.done .pl-core{animation:pl-pop .5s var(--ease-out) both}
+.pl-sats{position:absolute;inset:0;animation:pl-spin 24s linear infinite}
+.pl-sat{position:absolute;left:50%;top:50%;display:grid;place-items:center;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:12px;background:var(--card);color:var(--muted);border:1.5px dashed var(--line);opacity:.55;transform:translate(var(--x),var(--y)) scale(.8);transition:transform .6s var(--ease-out),opacity .4s ease,background .4s,color .4s,border-color .4s}
+.pl-sat.in{opacity:1;transform:translate(var(--x),var(--y)) scale(1);background:color-mix(in srgb,var(--c) 14%,var(--card));color:var(--c);border:1.5px solid color-mix(in srgb,var(--c) 35%,var(--line));transition-timing-function:var(--ease-out)}
+.pl-sat > svg{animation:pl-spin 24s linear infinite reverse}
+.pl-load.done .pl-sat{transform:translate(calc(var(--x) * .55),calc(var(--y) * .55)) scale(.6);opacity:0;transition-duration:.5s}
+.pl-pct{font-size:.95rem;font-weight:800;color:var(--green-d);font-variant-numeric:tabular-nums}
+.pl-load .pl-phase{margin:0;font-size:1.3rem}
+.pl-steps{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px;text-align:left;min-width:230px}
+.pl-steps li{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.9rem;font-weight:600;transition:color .3s}
+.pl-steps li i{display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);color:#fff;transition:background .3s,border-color .3s}
+.pl-steps li.now{color:var(--text)}
+.pl-steps li.now i{border-color:var(--green);border-right-color:transparent;animation:pl-spin .8s linear infinite}
+.pl-steps li.ok{color:var(--text)}
+.pl-steps li.ok i{background:var(--green);border-color:var(--green);animation:pl-pop .35s var(--ease-out)}
+@keyframes pl-spin{to{transform:rotate(360deg)}}
+@keyframes pl-bob{50%{transform:translateY(-5px)}}
+@keyframes pl-pop{from{transform:scale(.6)}60%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.pl-sats,.pl-sat > svg,.pl-core,.pl-steps li i{animation:none!important}.pl-sat{transition:opacity .3s}}
+@media (max-width:360px){.pl-orbit{width:230px;height:230px}.pl-sat{transform:translate(calc(var(--x) * .88),calc(var(--y) * .88)) scale(.8)}.pl-sat.in{transform:translate(calc(var(--x) * .88),calc(var(--y) * .88)) scale(1)}}
+
+/* Выбор языка: пилюля + выпадающее меню; в настройках — список */
+.lang-pick{position:relative}
+.lang-btn{display:inline-flex;align-items:center;gap:6px;min-height:0;height:36px;padding:0 10px 0 12px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);color:var(--text);font:inherit;font-size:.8rem;font-weight:800;letter-spacing:.02em;cursor:pointer;transition:border-color var(--motion-micro),background var(--motion-micro)}
+.lang-btn .lang-car{color:var(--muted);transition:transform .2s}
+.lang-pick.open .lang-btn{border-color:var(--green)}
+.lang-pick.open .lang-car{transform:rotate(180deg)}
+@media (hover:hover){.lang-btn:hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+.lang-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.lang-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:30;display:grid;gap:2px;width:236px;padding:6px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 12px 32px rgba(15,26,20,.14);animation:lang-in .18s var(--ease-out)}
+.lang-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:0;padding:9px 10px;border:0;border-radius:11px;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:background var(--motion-micro)}
+@media (hover:hover){.lang-opt:hover{background:color-mix(in srgb,var(--line) 55%,transparent)}}
+.lang-opt.on{background:var(--green-l)}
+.lang-opt:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+.lang-code{display:grid;place-items:center;flex:none;width:34px;height:26px;border-radius:8px;background:var(--bg);border:1px solid var(--line);color:var(--soft);font-size:.7rem;font-weight:800;letter-spacing:.04em}
+.lang-opt.on .lang-code{background:var(--green);border-color:var(--green);color:#fff}
+.lang-name{display:grid;flex:1;min-width:0;line-height:1.25}
+.lang-name b{font-size:.92rem}
+.lang-name small{color:var(--muted);font-size:.74rem;font-weight:600}
+.lang-ok{flex:none;color:var(--green-d)}
+.lang-list{display:grid;gap:4px;margin-top:10px}
+.lang-list .lang-opt{padding:11px 12px;border:1.5px solid var(--line)}
+.lang-list .lang-opt.on{border-color:var(--green)}
+:root[data-theme='dark'] .lang-menu{box-shadow:0 12px 32px rgba(0,0,0,.5)}
+:root[data-theme='dark'] .lang-opt.on{background:color-mix(in srgb,var(--green) 16%,var(--card))}
+@keyframes lang-in{from{opacity:0;transform:translateY(-4px) scale(.98)}}
+@media (prefers-reduced-motion:reduce){.lang-menu{animation:none}}
+.corner-l{position:absolute;left:16px;top:calc(12px + env(safe-area-inset-top));z-index:5}
+
+/* Круглые кнопки: глобальный min-height:44px у button вытягивал их в овал. Держим строго 1:1 */
+:is(button.icon, .icon-btn.sm, .mapctl button, .pass .eye, .picker.colors button){min-height:0;min-width:0;flex:none;aspect-ratio:1;padding:0}
+button.icon{width:40px;height:40px}
+
+/* Опрос, тест и итог диагностики: на широких экранах — узкая колонка по центру, как у карточки входа */
+@media (min-width:700px){
+  .app.focus.pl-page, .app.focus.pl-result{max-width:36rem;margin-inline:auto}
+  .pl-page{padding-top:clamp(24px,8vh,80px)}
+  .pl-page .pl-body h2{font-size:1.5rem}
+  .pl-page .pl-hint{font-size:.95rem}
+  .pl-page .btn{margin-top:8px}
+}
+
+/* Загрузка программы в карточке на ПК: высота по содержимому, без пустоты сверху */
+@media (min-width:640px){.app.auth.pl-load{min-height:0;padding-block:48px 40px}}
+
+/* Планшет в альбомной ориентации и маленькие ноутбуки: сайдбар уже, контенту больше места */
+@media (min-width:960px) and (max-width:1199px){
+  :root{--nav-w:13.5rem}
+  .app > nav[aria-label] > button{gap:10px;padding:0 10px;font-size:.9rem}
+}
+/* Широкие мониторы: контент не растягивается бесконечно */
+@media (min-width:1700px){
+  .app:not(.focus):not(.auth):not(.splash) > main{max-width:var(--page-max);margin-inline:auto}
+}
+/* Низкие экраны (ноутбуки 13", телефоны в альбомной ориентации): меньше вертикальных отступов */
+@media (max-height:700px) and (min-width:640px){
+  .app.auth{margin-block:16px;padding-block:28px}
+  .pl-orbit{width:220px;height:220px;margin-bottom:0}
+}
+
+/* Вызов друга на блиц */
+.bz-rival{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 6px;margin:4px 0 8px;padding:10px 14px;border-radius:var(--r);background:color-mix(in srgb,#f59e0b 12%,var(--card));color:var(--text);font-size:.92rem}
+.bz-rival svg{color:#d97706}
+.bz-rival.win{background:color-mix(in srgb,var(--green) 12%,var(--card))}
+.pp-duel{width:100%;margin-bottom:10px}
+.urow .chip.duel{display:inline-flex;align-items:center;gap:4px;color:#b45309;border-color:color-mix(in srgb,#f59e0b 40%,var(--line))}
+
+/* Pro: жёлтая подложка за маскотом и аккуратные мелочи */
+.pro-modal .pro-hero .pro-mascot{grid-row:1 / 3;display:grid;place-items:center;width:96px;height:96px;border-radius:28px;background:#fde68a}
+:root[data-theme='dark'] .pro-modal .pro-hero .pro-mascot{background:color-mix(in srgb,#f59e0b 32%,var(--card))}
+@media (prefers-color-scheme:dark){:root:not([data-theme='light']) .pro-modal .pro-hero .pro-mascot{background:color-mix(in srgb,#f59e0b 32%,var(--card))}}
+.pro-modal .pro-stats b{color:#d97706}
+.pro-modal .pro-lead{padding:14px 16px;border-radius:var(--r);background:color-mix(in srgb,#f59e0b 8%,var(--card));border-left:4px solid #f59e0b}
+.pro-modal .features{gap:0}
+.pro-modal .features li{align-items:center;padding:12px 0}
+.pro-modal .features li + li{border-top:1px solid var(--line)}
+.pro-modal .features small{color:var(--muted);line-height:1.4}
+.pro-modal .pro-cmp .row b.gold{color:#d97706}
+.pro-modal .pro-cmp .head b.gold,.pro-modal .pro-cmp .row b.gold{align-self:stretch;display:grid;place-items:center;margin:-10px 0;background:color-mix(in srgb,#f59e0b 10%,transparent)}
+.pro-modal .pro-faq summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none}
+.pro-modal .pro-faq summary::-webkit-details-marker{display:none}
+.pro-modal .pro-faq summary::after{content:'';flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.pro-modal .pro-faq details[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+
+/* ── Движение: минимальное. Без пружинящего перелёта, короткие нажатия и переходы ── */
+:root{--spring:cubic-bezier(.2,.8,.2,1);--ease-spring:cubic-bezier(.2,.8,.2,1);--dur-3:280ms}
+
+/* Кнопки с «гранью»: опускаются на 2px, а не на всю грань */
+:root:root .btn,:root:root .lp-go,:root:root .jp-disc,:root:root .chip,:root:root .icon-btn{transition:transform .12s var(--ease-out),box-shadow .12s var(--ease-out),background .15s,border-color .15s,color .15s,opacity .2s}
+:root:root .btn:is(:active,[data-pressed]):not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--edge-c)}
+:root:root .btn.ghost:is(:active,[data-pressed]):not(:disabled){box-shadow:inset 0 0 0 2px var(--line),0 2px 0 var(--edge-c)}
+:root:root .lp-go:is(:active,[data-pressed]){transform:translateY(2px);box-shadow:0 2px 0 var(--edge-c,transparent)}
+:root:root :is(.chip,.icon-btn,.lb-periods button):is(:active,[data-pressed]){transform:translateY(1px);box-shadow:0 2px 0 var(--line)}
+:root:root .chip.add:is(:active,[data-pressed]){box-shadow:0 2px 0 var(--green-d)}
+:root:root .jp-hit:is(:active,[data-pressed]) .jp-disc{transform:translateY(3px)}
+:root:root .jp-hit:is(:active,[data-pressed]) .jp-disc svg{transform:none}
+
+/* Карточки и пункты с «гранью снизу»: лёгкое смещение на 1px */
+:root:root :is(.option,.lesson .option,.action-row,.jp-mc,.learn-cta,button.ach,.continue-btn):active:not(:disabled):not(.right):not(.wrong){transform:translateY(1px)}
+
+/* Всё, что сжималось (.92–.97): едва заметно */
+:root:root :is(.who,.mapctl button,nav[aria-label] button,.app > nav[aria-label] > button,.stat,.stat.tap,.node,.path .node,.avb-grid button,.sc,.jp-q,.jp-book,.jp-weak,.jp-cta,.pv-card,.pv-ch,.mode,.qa,.invite,.hero-action,.profile-settings,.profile-avatar-btn,.profile-edit,.plink,.phs,.profile-page .ach,.seg button,.card:not(.chart),.pro-strip,.continue-card,.pa,.pf-edit,.icon,.pf-gear-btn,.pf-edit-btn,.lang-btn):active{transform:scale(.98)}
+:root:root nav[aria-label] .nb-item:active .nb-ico,:root:root .pod:not(:disabled):active .avatar{transform:scale(.97)}
+
+/* Переходы между страницами и появление окон: короче и на меньшее расстояние */
+:root:root .page > *,:root:root .pop > *{animation-duration:.2s}
+:root:root .page{animation-duration:.18s}
+:root:root .sheet{animation-duration:.24s;animation-timing-function:var(--ease-out)}
+:root:root .overlay{animation-duration:.18s}
+:root:root .app.auth{animation-duration:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(3px)}}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}}
+@keyframes sheetIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes enter-pop{from{opacity:0;transform:translateY(6px)}}
+@keyframes sheet-in{from{opacity:0;transform:translateY(16px)}}
+@keyframes dialog-in{from{opacity:0;transform:translateY(6px) scale(.99)}}
+@keyframes toast-spring{from{opacity:0;transform:translateX(-50%) translateY(6px)}}
+@keyframes feedback-in{from{opacity:0;transform:translateY(4px)}}
+@keyframes ui-rise{from{opacity:0;transform:translateY(4px)}}
+@keyframes ui-sheet{from{opacity:0;transform:translateY(12px)}}
+@keyframes pf-pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes fr-pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes pf-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Профиль: настройки — значок в углу, «Изменить профиль» — под именем */
+.profile-hero{position:relative}
+.pf-gear-btn{position:absolute;top:4px;right:0;z-index:3;display:grid;place-items:center;width:40px;height:40px;min-height:0;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--soft);cursor:pointer;transition:color .15s,border-color .15s,transform .12s var(--ease-out)}
+@media (hover:hover){.pf-gear-btn:hover{color:var(--text);border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+.pf-gear-btn:focus-visible,.pf-edit-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.pf-edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;margin:10px auto 0;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--text);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer;transition:border-color .15s,transform .12s var(--ease-out)}
+.pf-edit-btn svg{color:var(--muted)}
+@media (hover:hover){.pf-edit-btn:hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+/* Буква вместо аватара не выпадает из круга (у кнопки line-height: 0) */
+.profile-avatar-btn .avatar{display:grid;place-items:center;line-height:1}
+@media (min-width:1100px){.pf-gear-btn{top:14px;right:14px}}
+
+/* Бесконечные сердца: знак ∞ линией, по центру строки */
+svg.inf{display:block;flex:none}
+.sc b:has(> svg.inf),.chip.heart:has(svg.inf){display:inline-flex;align-items:center}
+.pro-cmp .row b.gold:has(> svg.inf){display:grid;place-items:center}
+
+/* Окно Pro: статус, заметка, выгодный год, свёрнутые темы, тихая кнопка отключения */
+.pro-modal .pro-hero .pro-on{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--green) 14%,var(--card));color:var(--green-d);font-size:.8rem;font-weight:800}
+.pro-modal .pro-note{margin:0 0 4px;color:var(--soft);font-size:.92rem;line-height:1.5}
+.pro-modal .plans button em{font-style:normal;font-size:.72rem;font-weight:700;color:#b45309}
+:root[data-theme='dark'] .pro-modal .plans button em{color:#fbbf24}
+.pro-topics{margin-top:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.pro-topics summary{display:flex;align-items:center;gap:8px;padding:12px 14px;font-weight:800;font-size:.92rem;cursor:pointer;list-style:none}
+.pro-topics summary::-webkit-details-marker{display:none}
+.pro-topics summary small{margin-left:auto;padding:1px 8px;border-radius:99px;background:var(--bg);color:var(--muted);font-size:.74rem}
+.pro-topics summary::after{content:'';flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.pro-topics[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+.pro-topics .pro-lessons{padding:0 14px 14px}
+.pro-off{display:block;min-height:36px;margin:0 auto;padding:0 12px;border:0;background:none;color:var(--muted);font:inherit;font-size:.84rem;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media (hover:hover){.pro-off:hover{color:var(--red)}}

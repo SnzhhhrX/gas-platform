@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { achievements } from '../data/achievements'
 import { nameOf } from '../data/world'
 import { usernameOf } from '../lib/auth'
-import { acceptFriend, blockUser, declineFriend, fetchUser, removeFriend, requestFriend } from '../lib/friends'
+import { acceptFriend, blockUser, challengeFriend, declineFriend, fetchUser, removeFriend, requestFriend } from '../lib/friends'
 import { SentCheck } from './FriendChip'
 import { Icon, Tile } from './Icon'
 import { Avatar, Portal, ProgressBar } from './ui'
@@ -87,6 +87,11 @@ export default function PublicProfile({ user, uid, onClose, onChange }) {
                 <button className="btn" onClick={act(acceptFriend, 'friend')} disabled={busy}>Принять</button>
                 <button className="btn ghost" onClick={act(declineFriend, 'none')} disabled={busy}>Отклонить</button>
               </div>
+            )}
+            {rel === 'friend' && (
+              <button type="button" className="btn pp-duel" onClick={() => challengeFriend(u)}>
+                <Icon name="zap" size={17} /> {u.blitz ? `${tr('Вызвать на блиц')} · ${tr('рекорд')} ${u.blitz}` : tr('Вызвать на блиц')}
+              </button>
             )}
             {rel === 'friend' && (
               <div key="fr" className="pp-sent">

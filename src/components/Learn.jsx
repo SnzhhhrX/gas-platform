@@ -7,7 +7,7 @@ import { tr } from '../lib/i18n'
 import { GasSays } from './Mascot'
 import { greeting } from '../lib/gas'
 import { Icon, Tile } from './Icon'
-import { ProgressBar, Sheet } from './ui'
+import { Inf, ProgressBar, Sheet } from './ui'
 
 const starsOf = (c) => (c?.score === c?.total ? 3 : c?.score >= (c?.total ?? 1) * 0.6 ? 2 : c?.score > 0 ? 1 : 0)
 const KIND = { read: ['bulb', 'Конспект'], lesson: ['star', 'Урок'], test: ['trophy', 'Проверка'] }
@@ -151,7 +151,7 @@ export default function Learn({ state, hearts, openLesson, openPro, notify }) {
           </button>
           <button type="button" className="sc" style={{ '--c': '#ef4444' }} onClick={openPro} aria-label={`Сердца: ${formatHearts(hearts ?? 0)}`}>
             <Icon name="heart" size={20} fill="currentColor" />
-            <b>{formatHearts(hearts ?? 0)}</b>
+            <b>{hearts === Infinity ? <Inf size={20} /> : formatHearts(hearts ?? 0)}</b>
           </button>
         </div>
       </header>

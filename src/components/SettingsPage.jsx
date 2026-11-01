@@ -7,7 +7,8 @@ import SecuritySheet from './Security'
 import Skills from './Skills'
 import { Icon } from './Icon'
 import { Confirm, Segmented, Toggle } from './ui'
-import { LANGS, getLang, setLang, tr } from '../lib/i18n'
+import { tr } from '../lib/i18n'
+import { LangList } from './LangPick'
 
 /**
  * Full-screen settings — opened from Profile.
@@ -251,7 +252,7 @@ export default function SettingsPage({
           <div className="srow col">
             <b>{tr('Язык')}</b>
             <small>{tr('Язык интерфейса и уроков.')}</small>
-            <Segmented value={getLang()} options={LANGS} onChange={setLang} />
+            <LangList />
           </div>
         </div>
 

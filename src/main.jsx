@@ -12,6 +12,7 @@ import './styles/ui2.css'
 import './styles/profile.css'
 import './styles/minimal.css'
 import './styles/profile2.css'
+import './styles/refine.css'
 
 initTheme()
 // Узнаём, запущен ли backend (/api/health), и только потом рисуем приложение

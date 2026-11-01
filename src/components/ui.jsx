@@ -127,3 +127,10 @@ export function Sheet({ onClose, children, tall }) {
   )
 }
 export const Portal = ({ children }) => createPortal(children, document.body)
+
+// Знак бесконечности: в Manrope нет глифа «∞», запасной шрифт сбивает выравнивание — рисуем линией, как иконки
+export const Inf = ({ size = 18 }) => (
+  <svg className="inf" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" role="img" aria-label="∞">
+    <path d="M12 12c-1.8-2.4-3.4-3.8-5.3-3.8a3.8 3.8 0 0 0 0 7.6c1.9 0 3.5-1.4 5.3-3.8zm0 0c1.8 2.4 3.4 3.8 5.3 3.8a3.8 3.8 0 0 0 0-7.6c-1.9 0-3.5 1.4-5.3 3.8z" />
+  </svg>
+)

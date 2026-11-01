@@ -5,10 +5,11 @@ import { GOALS, GRADE_OPTIONS, INTERESTS, SELF, TIME, goalName, makePlan, modeLa
 import { Icon, Tile } from './Icon'
 import { play } from '../lib/sound'
 import { Mascot } from './Mascot'
+import { LangPick } from './LangPick'
 
 const SURVEY = [
   { id: 'goal', title: 'Зачем география?', hint: 'От цели зависит порядок и глубина тем.' },
-  { id: 'grade', title: 'Кто вы?', hint: 'Чтобы подобрать темп.' },
+  { id: 'grade', title: 'Кто вы?', hint: 'Поднимем темы вашей школьной программы.' },
   { id: 'minutes', title: 'Сколько минут в день?', hint: 'Считаем срок и цель XP.' },
   { id: 'interests', title: 'Что интереснее?', hint: 'Можно несколько — поставим раньше.', multi: true },
   { id: 'self', title: 'Как оцениваете знания?', hint: 'Тест уточнит уровень.' },
@@ -19,9 +20,41 @@ const PHASES = {
   skipped: ['Читаем ваши ответы', 'Подбираем темы под вашу цель', 'Собираем программу'],
   tested: ['Проверяем ответы теста', 'Определяем уровень', 'Подбираем темы', 'Собираем программу'],
 }
+// «Кто вы?»: привычный список ролей; у школьника ниже раскрывается выбор класса
+const SCHOOL = 'school'
+const CLASSES = GRADE_OPTIONS.filter((g) => /^\d+$/.test(g))
+const ROLES = [[SCHOOL, 'Школьник', '5–11 класс', 'book'], ['Студент', 'Студент', 'Колледж или вуз', 'grad'], ['Взрослый', 'Взрослый', 'Учусь для себя', 'user']]
+function WhoPicker({ value, onPick }) {
+  const school = value === SCHOOL || CLASSES.includes(value)
+  return (
+    <div className="options pl-opts">
+      {ROLES.map(([id, title, sub, icon]) => {
+        const on = id === SCHOOL ? school : value === id
+        return (
+          <button key={id} type="button" className={`option ${on ? 'picked' : ''}`} onClick={() => !(id === SCHOOL && school) && onPick(id)} aria-pressed={on}>
+            <span className="pl-ico"><Icon name={icon} size={18} /></span>
+            <span className="pl-opt"><b>{tr(title)}</b><small>{tr(sub)}</small></span>
+          </button>
+        )
+      })}
+      {school && (
+        <div className="pl-class anim-in">
+          <small>{tr('В каком классе?')}</small>
+          <div className="pl-classes" role="radiogroup">
+            {CLASSES.map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={value === c} className={`pl-cls ${value === c ? 'picked' : ''}`} onClick={() => onPick(c)}>{c}</button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Загрузка: вокруг Гаса по очереди «собираются» темы программы, ниже — чек-лист шагов и проценты
 function Analysis({ onDone, skipped }) {
   const phases = skipped ? PHASES.skipped : PHASES.tested
-  const total = skipped ? 2200 : 3600
+  const total = skipped ? 2800 : 4200
   const [p, setP] = useState(0)
   const [leaving, setLeaving] = useState(false)
   useEffect(() => {
@@ -36,18 +69,36 @@ function Analysis({ onDone, skipped }) {
     raf = requestAnimationFrame(tick)
     return () => { cancelAnimationFrame(raf); clearTimeout(t1); clearTimeout(t2) }
   }, [])
+  const done = p >= 1
   const idx = Math.min(phases.length - 1, Math.floor(p * phases.length))
-  const R = 52, C = 2 * Math.PI * R
+  const R = 46, C = 2 * Math.PI * R
   return (
-    <div className={`app auth pl-load ${leaving ? 'out' : ''}`} role="status" aria-live="polite">
-      <div className="pl-gasring" aria-hidden>
+    <div className={`app auth pl-load ${leaving ? 'out' : ''} ${done ? 'done' : ''}`} role="status" aria-live="polite">
+      <div className="pl-orbit" aria-hidden>
         <svg className="pl-rsvg" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r={R} className="rtrk" />
           <circle cx="60" cy="60" r={R} className="rbar" strokeDasharray={C} strokeDashoffset={C * (1 - p)} />
         </svg>
-        <Mascot mood={p >= 1 ? 'cheer' : 'think'} size={96} />
+        <div className="pl-sats">
+          {SKILLS.map((k, i) => {
+            const a = (i / SKILLS.length) * 2 * Math.PI - Math.PI / 2
+            return (
+              <span key={k.id} className={`pl-sat ${p * SKILLS.length > i + 0.3 ? 'in' : ''}`} style={{ '--x': `${Math.cos(a) * 112}px`, '--y': `${Math.sin(a) * 112}px`, '--c': k.color }}>
+                <Icon name={k.icon} size={16} />
+              </span>
+            )
+          })}
+        </div>
+        <span className="pl-core"><Mascot mood={done ? 'cheer' : 'think'} size={88} /></span>
       </div>
-      <h1 key={idx} className="pl-phase">{p >= 1 ? 'Программа готова' : phases[idx]}</h1>
+      <b className="pl-pct">{Math.round(p * 100)}%</b>
+      <h1 key={done ? 'done' : 'work'} className="pl-phase">{done ? 'Программа готова' : 'Готовим вашу программу'}</h1>
+      <ul className="pl-steps">
+        {phases.map((t, i) => {
+          const st = done || i < idx ? 'ok' : i === idx ? 'now' : ''
+          return <li key={t} className={st}><i>{st === 'ok' && <Icon name="check" size={12} />}</i>{t}</li>
+        })}
+      </ul>
     </div>
   )
 }
@@ -109,6 +160,7 @@ export default function Placement({ onDone, onCancel = null, seed = 0, practiceN
   if (phase === 'intro') {
     return (
       <div className="app auth pl-intro">
+        {!retake && <LangPick className="corner-l" />}
         <div className="pl-hero"><Mascot mood="wave" size={150} /></div>
         <h1>{retake ? 'Диагностика заново' : 'Определим ваш уровень'}</h1>
         <p className="text">{retake ? 'Вопросы будут другими. Пройденные уроки сохранятся.' : 'Несколько вопросов о вас и по три коротких вопроса на каждую из 8 тем. Около 4 минут, закончить можно в любой момент.'}</p>
@@ -131,7 +183,7 @@ export default function Placement({ onDone, onCancel = null, seed = 0, practiceN
             : [...s.interests, val]
           : val,
       }))
-    const ok = q.multi ? v.length > 0 : v !== null
+    const ok = q.multi ? v.length > 0 : q.id === 'grade' ? !!v && v !== SCHOOL : v !== null
     const opts = {
       goal: GOALS.map((g) => [g.id, g.title, g.sub, g.icon]),
       grade: GRADE_OPTIONS.map((g) => [g, g]),
@@ -159,12 +211,15 @@ export default function Placement({ onDone, onCancel = null, seed = 0, practiceN
         <div key={si} className="pl-body anim-in">
           <h2>{q.title}</h2>
           <small className="pl-hint">{q.hint}</small>
-          <div className={q.id === 'grade' ? 'pl-grid' : 'options pl-opts'}>
+          {q.id === 'grade' ? (
+            <WhoPicker value={v} onPick={set} />
+          ) : (
+          <div className="options pl-opts">
             {opts.map(([val, label, sub, icon]) => (
               <button
                 key={val}
                 type="button"
-                className={`option ${on(val) ? 'picked' : ''} ${q.id === 'grade' ? 'pl-grade' : ''}`}
+                className={`option ${on(val) ? 'picked' : ''}`}
                 onClick={() => set(val)}
                 aria-pressed={on(val)}
               >
@@ -180,6 +235,7 @@ export default function Placement({ onDone, onCancel = null, seed = 0, practiceN
               </button>
             ))}
           </div>
+          )}
           <button
             className="btn"
             disabled={!ok}
@@ -262,7 +318,7 @@ export default function Placement({ onDone, onCancel = null, seed = 0, practiceN
       </div>
 
       <p className={`pl-sum ${resultReady >= 2 ? 'show' : ''}`}>
-        {`${s.lessons} уроков · ${s.days <= 14 ? `${s.days} дн.` : `${s.weeks} нед.`} по ${result.plan.minutes} мин в день`}
+        {[s.lessons ? `${s.lessons} уроков` : '', s.checks ? `${s.checks} ${tr('проверок вместо уроков')}` : '', `${s.days <= 14 ? `${s.days} дн.` : `${s.weeks} нед.`} по ${result.plan.minutes} мин в день`].filter(Boolean).join(' · ')}
       </p>
 
       {asked && resultReady >= 2 && (

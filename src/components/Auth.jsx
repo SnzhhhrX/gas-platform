@@ -5,6 +5,7 @@ import { getTheme, setTheme } from '../lib/theme'
 import { randomAv } from './AvatarArt'
 import { Mascot } from './Mascot'
 import { Wordmark } from './Wordmark'
+import { LangPick } from './LangPick'
 import { Icon, Tile } from './Icon'
 
 const NEXT = { auto: 'light', light: 'dark', dark: 'auto' }, ICON = { auto: 'sparkles', light: 'sun', dark: 'moon' }
@@ -103,6 +104,7 @@ export default function Auth({ onAuth }) {
 
   return (
     <div className="app auth">
+      <LangPick className="corner-l" />
       <button className="icon corner" onClick={cycle} aria-label={`Тема: ${theme}`}><Icon name={ICON[theme]} size={18} /></button>
       <div className="logo"><Mascot mood={mode === 'recover' ? 'think' : 'wave'} size={128} /></div>
       <h1 className="wordmark"><Wordmark height={40} /></h1>

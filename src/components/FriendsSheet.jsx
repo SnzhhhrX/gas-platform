@@ -1,7 +1,7 @@
 import { ListSkeleton } from './Skeleton'
 import { useEffect, useRef, useState } from 'react'
 import { usernameOf } from '../lib/auth'
-import { acceptFriend, declineFriend, fetchFriends, fetchSuggestions, requestFriend, searchUsers, unblockUser } from '../lib/friends'
+import { acceptFriend, declineFriend, fetchFriends, fetchSuggestions, requestFriend, challengeFriend, searchUsers, unblockUser } from '../lib/friends'
 import { Icon } from './Icon'
 import { SentCheck } from './FriendChip'
 import { Avatar, Empty, Portal } from './ui'
@@ -80,7 +80,7 @@ export default function FriendsSheet({ uid, onClose, onOpenUser, onChange }) {
 
           {tab === 'friends' && (!data ? <ListSkeleton rows={3} /> : (
             <>
-              {data.friends.map((u) => <Row key={u.id} u={u} onOpen={onOpenUser}><Icon name="chevron" size={18} style={{ color: 'var(--muted)' }} /></Row>)}
+              {data.friends.map((u) => <Row key={u.id} u={u} onOpen={onOpenUser}><button className="chip duel" onClick={() => challengeFriend(u)} aria-label={`Вызвать на блиц: ${u.name}`}><Icon name="zap" size={14} />Вызов</button></Row>)}
               {!nFriends && <Empty icon="users" title="Пока нет друзей" text="Найдите друга по логину или отправьте ему приглашение."><button className="btn" onClick={() => setTab('find')}>Найти друзей</button></Empty>}
               {data.blocked.length > 0 && (
                 <details className="blocked"><summary>Заблокированные · {data.blocked.length}</summary>

@@ -3,6 +3,7 @@ import { INFO } from '../data/capitals'
 import { findPool } from '../data/practice'
 import { nameOf } from '../data/world'
 import { play } from '../lib/sound'
+import { tr } from '../lib/i18n'
 import Confetti from './Confetti'
 import { Icon, Tile } from './Icon'
 import WorldMap from './WorldMap'
@@ -11,7 +12,7 @@ import WorldMap from './WorldMap'
 const TIME = 60, PENALTY = 3
 const deck = () => [...findPool].sort(() => Math.random() - 0.5)
 
-export default function Blitz({ record, sound, onFinish, onExit }) {
+export default function Blitz({ record, rival = null, sound, onFinish, onExit }) {
   const [phase, setPhase] = useState('ready') // ready | play | over
   const [left, setLeft] = useState(TIME)
   const [score, setScore] = useState(0)
@@ -58,19 +59,28 @@ export default function Blitz({ record, sound, onFinish, onExit }) {
         <Tile name="timer" color="#f59e0b" size={84} />
         <h1>Блиц</h1>
         <p className="text">60 секунд. Находите названные страны на глобусе: верный ответ даёт +1 очко, ошибка отнимает {PENALTY} секунды. Вращайте глобус пальцем, приближайте щипком.</p>
-        <p className="hint-keys">Ваш рекорд: {record}</p>
-        <button className="btn" onClick={start}>Старт</button>
+        {rival
+          ? <p className="bz-rival"><Icon name="zap" size={16} />{tr('Вызов')}: {tr('побейте рекорд')} <b>{rival.name}</b> — <b>{rival.score}</b></p>
+          : <p className="hint-keys">Ваш рекорд: {record}</p>}
+        <button className="btn" onClick={start}>{rival ? tr('Принять вызов') : 'Старт'}</button>
       </div>
     </section>
   )
   if (phase === 'over') return (
     <section className="lesson">
       <div className="pop center result">
-        {isRecord && <Confetti />}
+        {(isRecord || (rival && score > rival.score)) && <Confetti />}
         <Tile name={isRecord ? 'trophy' : 'timer'} color="#f59e0b" size={84} />
         <h1>{isRecord ? 'Новый рекорд!' : 'Время вышло'}</h1>
         <div className="bigscore">{score}</div>
         <p className="text">найдено стран · ошибок: {miss} · +{score * 5} XP{!isRecord && record > 0 ? ` · рекорд ${record}` : ''}</p>
+        {rival && (
+          <p className={`bz-rival ${score > rival.score ? 'win' : ''}`}>
+            {score > rival.score
+              ? <>{tr('Вы обошли')} <b>{rival.name}</b>: {score} {tr('против')} {rival.score}</>
+              : <>{tr('До победы над')} <b>{rival.name}</b> {tr('не хватило')} <b>{rival.score - score + 1}</b></>}
+          </p>
+        )}
         <button className="btn" onClick={start}>Ещё раз</button>
         <button className="btn ghost" onClick={onExit}>Выйти</button>
       </div>
@@ -83,7 +93,7 @@ export default function Blitz({ record, sound, onFinish, onExit }) {
         <div className={`bar flex ${left < 10 ? 'low' : ''}`}><i style={{ width: `${(left / TIME) * 100}%`, transition: 'none' }} /></div>
         <div className="pills">
           {combo >= 2 && <span className="chip hot" key={combo}><Icon name="flame" size={14} />×{combo}</span>}
-          <span className="chip"><Icon name="target" size={14} />{score}</span>
+          <span className="chip"><Icon name="target" size={14} />{score}{rival ? ` / ${rival.score + 1}` : ''}</span>
         </div>
       </header>
       <div className="pop">

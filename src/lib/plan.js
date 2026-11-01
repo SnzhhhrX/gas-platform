@@ -72,6 +72,26 @@ const GOAL_BOOST = {
   curious: { biomes: 0.1, water: 0.05 },
 }
 
+// Школьная программа по классам: эти модули поднимаются выше, особенно при цели «Школа и оценки»
+const GRADE_MODULES = {
+  5: ['globe', 'cart'],
+  6: ['relief', 'water', 'climate', 'biomes'],
+  7: ['continents', 'biomes', 'regions', 'hazards'],
+  8: ['kazakhstan', 'relief', 'climate', 'water'],
+  9: ['kazakhstan', 'people', 'eco'],
+  10: ['people', 'eco', 'world', 'regions'],
+  11: ['world', 'regions', 'eco', 'atlas'],
+  'Студент': ['world', 'people', 'eco'],
+  'Взрослый': ['world', 'regions', 'atlas'],
+}
+export const gradeModules = (grade) => GRADE_MODULES[grade] ?? []
+const gradeLabel = (grade) => (/^\d+$/.test(grade) ? `${grade} класса` : '')
+
+// Модули, которые диагностика проверяет лишь косвенно (через соседний навык): «освоено» по ним не ставим,
+// максимум — ускоренный режим с ключевыми уроками
+const INDIRECT = new Set(['hazards', 'continents', 'eco', 'kazakhstan'])
+const capIndirect = (mode) => (mode === 'mastered' ? 'fast' : mode === 'fast' ? 'full' : mode)
+
 const PREREQ = {
   cart: ['globe'],
   climate: ['globe'],
@@ -116,6 +136,10 @@ export function makePlan(survey, answers, opts = {}) {
   const interests = new Set((survey.interests ?? []).flatMap((i) => INTEREST_MODULES[i] ?? []))
   const boost = GOAL_BOOST[survey.goal] ?? {}
   const goalTitle = GOALS.find((g) => g.id === survey.goal)?.title ?? ''
+  const byGrade = new Set(gradeModules(survey.grade))
+  const gradeW = survey.goal === 'school' ? 0.3 : 0.12
+  // Новичкам важнее естественный порядок тем (от основ к сложному), уверенным — меньше
+  const orderW = ({ 1: 0.06, 2: 0.035, 3: 0.025 })[survey.self] ?? 0.035
   const modes = {}
   const why = {}
 
@@ -128,10 +152,12 @@ export function makePlan(survey, answers, opts = {}) {
   for (const m of MODULES) {
     if (m.pro) { modes[m.id] = 'full'; why[m.id] = ['Доступно в GAS Pro']; continue }
     const st = per[m.skill] ?? { status: 'nodata', n: 0, right: 0, idk: 0 }
-    modes[m.id] = modeFor(st)
-    const notes = [reasonFor(st)]
+    const base = modeFor(st)
+    modes[m.id] = INDIRECT.has(m.id) ? capIndirect(base) : base
+    const notes = [modes[m.id] === base ? reasonFor(st) : `Тему проверяли косвенно, через навык «${skillById(m.skill)?.title ?? m.skill}» — поэтому ${modes[m.id] === 'fast' ? 'оставили ключевые уроки' : 'полный курс'}.`]
     if (st.practice) notes.push(`Из практики: закреплено ${st.practice.solid} из ${st.practice.items} вопросов.`)
     if (interests.has(m.id)) notes.push('Вы выбрали эту тему.')
+    else if (byGrade.has(m.id) && gradeLabel(survey.grade)) notes.push(`Проходят в программе ${gradeLabel(survey.grade)}.`)
     else if ((boost[m.id] ?? 0) >= 0.15) notes.push(`Важно для цели «${goalTitle}».`)
     why[m.id] = notes
   }
@@ -139,8 +165,9 @@ export function makePlan(survey, answers, opts = {}) {
   const score = (m) =>
     0.5 * needOf(per[m.skill] ?? { status: 'nodata' }) +
     (interests.has(m.id) ? 0.3 : 0) +
-    (boost[m.id] ?? 0) -
-    0.035 * NATURAL_ORDER.indexOf(m.id) +
+    (boost[m.id] ?? 0) +
+    (byGrade.has(m.id) ? gradeW : 0) -
+    orderW * NATURAL_ORDER.indexOf(m.id) +
     (modes[m.id] === 'mastered' ? 0.2 : 0)
 
   // Порядок: предпосылки раньше. Предпосылку можно не проходить, только если она «освоена» (т.е. подтверждена проверкой)
@@ -184,6 +211,7 @@ export function makePlan(survey, answers, opts = {}) {
       score: score_, total: answers.length, level: lvl.level, startLevel: lvl.level, date: new Date().toISOString(), plan,
       summary: {
         skipped: prog.totals?.skipped ?? 0, lessons: prog.totals?.plannedLessons ?? 0, full: prog.totals?.fullLessons ?? 0,
+        checks: MODULES.filter((m) => !m.pro && modes[m.id] === 'mastered').length, // модули, где вместо уроков одна проверка
         minutes: prog.totals?.minutesLeft ?? 0, days, weeks: Math.ceil(days / 7), xpGoal, weakSpots, tip: daily.tip,
       },
     },
