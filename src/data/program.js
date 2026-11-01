@@ -2,6 +2,7 @@
 // Иерархия: Ступень → Модуль → Глава → Узлы (конспект · уроки · проверка).
 // Персональный путь собирает buildProgram(state): порядок модулей, глубина и пропуски зависят от плана пользователя.
 import { topics, olympiadLessons } from './courses'
+import { enrichLessons } from './learn-interactive'
 import { NEW_LESSONS } from './learn-lessons'
 import { MORE_LESSONS } from './learn-more'
 import { EXTRA_LESSONS, EXTRA_BY_CHAPTER } from './learn-extra'
@@ -115,9 +116,20 @@ for (const m of MODULES) for (const c of m.chapters) if (EXTRA_BY_CHAPTER[c.id])
 for (const m of MODULES) for (const c of m.chapters) if (KZ_BY_CHAPTER[c.id]) c.lessons.push(...KZ_BY_CHAPTER[c.id])
 MODULES.find((m) => m.id === 'kazakhstan').chapters.push(ch(KZ_NEW_CHAPTER.id, 'Культура и космос', 'Флаг, юрта, Байконур', KZ_NEW_CHAPTER.lessons))
 
+// Иллюстрация по умолчанию для уроков главы (id рисунка из components/figures.jsx)
+const CHAPTER_FIG = {
+  'globe-planet': 'seasons', 'globe-coords': 'grid', 'globe-time': 'tzones', 'cart-scale': 'scale', 'cart-orient': 'compass', 'cart-relief': 'contour',
+  'relief-earth': 'earth', 'relief-forms': 'mountain', 'relief-ore': 'energy', 'water-ocean': 'currents', 'water-land': 'river',
+  'climate-air': 'layers', 'climate-wind': 'wind', 'climate-zones': 'climate', 'climate-factors': 'currents', 'biomes-zones': 'biomes', 'biomes-human': 'greenhouse',
+  'hazards-earth': 'volcano', 'hazards-sky': 'cyclone', 'regions-continents': 'hemis', 'people-pop': 'population', 'people-eco': 'sectors',
+  'cont-far': 'iceberg', 'eco-air': 'greenhouse', 'eco-water': 'watercycle', 'eco-protect': 'energy',
+  'kazakhstan-land': 'kzwater', 'kazakhstan-cities': 'kzcities', 'kazakhstan-nature': 'kznature',
+  'oly-nature': 'climate', 'oly-calc': 'tzones', 'oly-econ': 'sectors', 'oly-practice': 'grid', 'oly-practice-2': 'population',
+}
+
 // ───────── Индекс уроков ─────────
 // Собираем общий пул вопросов по префиксу модуля (globe-, cart-, …) для дополнения коротких уроков
-const allRaw = [...topics.flatMap((t) => t.lessons), ...olympiadLessons, ...NEW_LESSONS, ...BULK_LESSONS, ...MORE_LESSONS, ...EXTRA_LESSONS, ...KZ_LESSONS]
+const allRaw = enrichLessons([...topics.flatMap((t) => t.lessons), ...olympiadLessons, ...NEW_LESSONS, ...BULK_LESSONS, ...MORE_LESSONS, ...EXTRA_LESSONS, ...KZ_LESSONS]) // + задания «порядок» и «пары», теория и новые задачи Pro
 const rawById = new Map(allRaw.map((l) => [l.id, l]))
 const poolByPrefix = new Map()
 for (const l of allRaw) {
@@ -270,8 +282,9 @@ export function buildProgram(state) {
         if (!m.pro) plannedLessons += picked.length
         const nodes = []
         const r = readNode(m, c)
-        if (r) nodes.push({ id: r.id, kind: 'read', lesson: { ...r, kind: 'read' } })
-        for (const l of picked) nodes.push({ id: l.id, kind: 'lesson', lesson: { ...l, icon: m.icon, color: m.color, kind: 'lesson' } })
+        const fig = CHAPTER_FIG[c.id] // иллюстрация главы — если у урока нет своей
+        if (r) nodes.push({ id: r.id, kind: 'read', lesson: { ...r, kind: 'read', fig } })
+        for (const l of picked) nodes.push({ id: l.id, kind: 'lesson', lesson: { ...l, icon: m.icon, color: m.color, kind: 'lesson', fig } })
         if (picked.length >= 2) {
           const t = mixTest(`ctest-${c.id}`, `Проверка: ${c.title}`, `Итоговые вопросы по главе «${c.title}». Без ошибок — три звезды.`, picked, 6, m.color, m.id === 'atlas')
           nodes.push({ id: t.id, kind: 'test', lesson: { ...t, kind: 'test' } })

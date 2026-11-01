@@ -1,7 +1,7 @@
 import Splash from './components/Splash'
 import { useEffect, useRef, useState } from 'react'
 import { achievements } from './data/achievements'
-import { buildProgram } from './data/program'
+import { buildProgram, moduleOfNode } from './data/program'
 import { deleteAccount, logout, sessionId } from './lib/auth'
 import { viaServer } from './lib/api'
 import { play } from './lib/sound'
@@ -10,7 +10,8 @@ import { gainXp, heartsOf, isRepeat, useStore } from './lib/store'
 import Atlas from './components/Atlas'
 import { CHALLENGE, acceptFriend, declineFriend, fetchFriends, fetchSuggestions, fetchUser, requestFriend, searchUsers } from './lib/friends'
 import { usernameOf } from './lib/auth'
-import { Avatar, Empty } from './components/ui'
+import { Avatar, Empty, Sheet } from './components/ui'
+import { LEVELS } from './data/islands'
 import PublicProfile from './components/PublicProfile'
 import { FriendChip } from './components/FriendChip'
 import { FriendCard, FriendsRace } from './components/FriendCard'
@@ -194,6 +195,8 @@ function Main({ uid, onLogout, onDelete }) {
             }}
             onExit={() => setLesson(null)}
             getNext={() => {
+              // «Дальше по программе» — только после уроков самой программы, не после тренировок, повторения и челленджей
+              if (!moduleOfNode(lesson.id)) return null
               const nx = buildProgram(state).next
               if (!nx || nx.module.proLock || nx.node.lesson.id === lesson.id) return null
               return { title: nx.node.kind === 'read' ? tr('Конспект') : nx.node.lesson.title, go: () => setLesson(nx.node.lesson) }
@@ -473,6 +476,7 @@ export function FriendsPage({ uid, setPending, goRating }) {
 /** Blitz tab — hub for speed practice and related modes */
 function BlitzHub({ state, openGame, openLesson, openPro }) {
   const isPro = !!state.pro
+  const [lv, setLv] = useState(null) // игра с выбором сложности: [название, make]
   return (
     <div className="blitz-hub">
       <header className="page-head">
@@ -495,8 +499,8 @@ function BlitzHub({ state, openGame, openLesson, openPro }) {
       <section className="section">
         <h2 className="section-title">{tr('Тренировки')}</h2>
         <div className="action-list">
-          {PRACTICE.map(([id, icon, color, title, sub, make]) => (
-            <button key={id} className="action-row" onClick={() => openLesson(make())}>
+          {PRACTICE.map(([id, icon, color, title, sub, make, levels]) => (
+            <button key={id} className="action-row" onClick={() => (levels ? setLv([title, make, color]) : openLesson(make()))}>
               <span className="action-icon" style={{ '--c': color }}>
                 <Icon name={icon} size={20} />
               </span>
@@ -509,6 +513,24 @@ function BlitzHub({ state, openGame, openLesson, openPro }) {
           ))}
         </div>
       </section>
+
+      {lv && (
+        <Sheet onClose={() => setLv(null)}>
+          {(close) => (
+            <div className="lv-pick" style={{ '--c': lv[2] }}>
+              <h2>{tr(lv[0])}</h2>
+              <p className="page-sub">{tr('Выберите сложность')}</p>
+              {LEVELS.map(([n, name, sub]) => (
+                <button key={n} type="button" className="lv-opt" onClick={() => { const make = lv[1]; close(); openLesson(make(n)) }}>
+                  <span className="lv-bars" aria-hidden="true">{[1, 2, 3].map((k) => <i key={k} className={k <= n ? 'on' : ''} />)}</span>
+                  <span className="lv-txt"><b>{tr(name)}</b><small>{tr(sub)}</small></span>
+                  <Icon name="chevron" size={16} />
+                </button>
+              ))}
+            </div>
+          )}
+        </Sheet>
+      )}
 
       {!isPro && (
         <button className="pro-strip subtle" onClick={openPro}>

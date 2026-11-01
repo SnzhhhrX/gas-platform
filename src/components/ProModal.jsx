@@ -66,10 +66,12 @@ export default function ProModal({ pro, plan: current, setPro, onClose, openLess
                 <ul className="features">
                   {[
                     { icon: 'trophy', title: 'Олимпиадные задачи', text: 'Не «столица Франции», а климатограммы, карты и расчёты с пошаговым разбором.' },
+                    { icon: 'book', title: 'Теория с примерами', text: 'Перед задачами — метод решения и разобранный пример, как на кружке.' },
                     { icon: 'timer', title: 'Пробные туры', text: 'Школьный и региональный этапы с таймером и целевым баллом.' },
                     { icon: 'target', title: 'Тренажёры по темам', text: 'Климат, карта, мир и микс — короткие тесты на причинно-следственные связи.' },
                     { icon: 'compass', title: 'Практикум по расчётам', text: 'Часовые пояса, масштаб, плотность населения — типовые задачи тура.' },
                     { icon: 'heart', title: 'Безлимит сердец', text: 'Ошибаться можно сколько угодно — главное, разобраться.' },
+                    { icon: 'bulb', title: '3 подсказки и второй шанс', text: 'Три подсказки в каждом уроке и одна попытка заново после ошибки.' },
                   ].map((f) => (
                     <li key={f.title}><Tile name={f.icon} color="#f59e0b" size={40} /><div><b>{f.title}</b><small>{f.text}</small></div></li>
                   ))}
@@ -84,6 +86,8 @@ export default function ProModal({ pro, plan: current, setPro, onClose, openLess
                     ['Пробные туры олимпиады', '—', '✓'],
                     [`Челленджи на время · ${PRO_CHALLENGES.length}`, '—', '✓'],
                     ['Сердца', '5', <Inf key="inf" size={16} />],
+                    ['Подсказки в уроке', '1', '3'],
+                    ['Второй шанс после ошибки', '—', '✓'],
                   ].map(([t, a, b]) => (
                     <div key={t} className="row"><span>{t}</span><b>{a}</b><b className="gold">{b}</b></div>
                   ))}

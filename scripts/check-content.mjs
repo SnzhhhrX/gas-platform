@@ -45,6 +45,16 @@ function checkQuestion(q, where, needWhy = true) {
     if (q.img && !/^(flag|fig):[a-z]+$/.test(q.img)) err(where, `img «${q.img}»: ожидается flag:xx или fig:name`)
     return
   }
+  if (q.type === 'order') {
+    if (!Array.isArray(q.items) || q.items.length < 3 || !q.items.every(txt)) err(where, 'order: нужен массив items из 3+ элементов в верном порядке')
+    else if (new Set(q.items).size !== q.items.length) err(where, 'order: элементы items повторяются')
+    return
+  }
+  if (q.type === 'match') {
+    if (!Array.isArray(q.pairs) || q.pairs.length < 3 || !q.pairs.every((p) => Array.isArray(p) && p.length === 2 && p.every(txt))) err(where, 'match: нужен массив pairs из 3+ пар [слева, справа]')
+    else if (new Set(q.pairs.map((p) => p[0])).size !== q.pairs.length || new Set(q.pairs.map((p) => p[1])).size !== q.pairs.length) err(where, 'match: значения в парах должны быть уникальны')
+    return
+  }
   if (q.img && !/^(flag|fig):[a-z]+$/.test(q.img)) err(where, `img «${q.img}»: ожидается flag:xx или fig:name`)
   if (!Array.isArray(q.options) && q.type !== 'map') return err(where, 'нет списка options')
   if (q.type === 'map') {

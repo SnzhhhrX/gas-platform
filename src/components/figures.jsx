@@ -7,8 +7,10 @@ const C = {
   yellow: '#ffc800', red: '#ff4b4b', purple: '#ce82ff', brown: '#a5703f', brownD: '#8a5a30',
   sand: '#ecd29a', sky: '#dff3fd', gray: '#9aa7b0',
 }
+// Подпись с тонкой обводкой цвета фона: читается поверх линий и заливок
+const halo = (c) => (c === '#fff' ? 'rgba(15,42,61,.35)' : c === INK ? 'rgba(255,255,255,.85)' : 'var(--card)')
 const T = ({ x, y, s = 12, c = 'var(--text)', a = 'middle', children }) => (
-  <text x={x} y={y} style={{ font: `800 ${s}px ${FONT}`, fill: c, textAnchor: a }}>{children}</text>
+  <text x={x} y={y} style={{ font: `800 ${s}px ${FONT}`, fill: c, textAnchor: a, stroke: halo(c), strokeWidth: 3, strokeLinejoin: 'round', paintOrder: 'stroke' }}>{children}</text>
 )
 const Svg = ({ label, children }) => <svg viewBox="0 0 240 150" role="img" aria-label={label}>{children}</svg>
 const Sky = () => <rect x="4" y="4" width="232" height="142" rx="16" fill={C.sky} />
@@ -130,7 +132,7 @@ const Volcano = () => (
     <path d="M102 40 Q120 52 138 40" fill="none" stroke={C.red} strokeWidth="5" strokeLinecap="round" />
     <path d="M138 42 Q150 70 144 96 Q142 112 152 128 H170 Q158 100 164 80Z" fill={C.red} opacity=".9" />
     <rect x="4" y="128" width="232" height="18" rx="9" fill={C.green} />
-    <T x="170" y="34" a="start" c={INK}>Кратер</T><T x="120" y="116" s="11" c="#fff">Магма</T>
+    <T x="170" y="34" a="start" c={INK}>Кратер</T><path d="M95 114 L74 114" stroke="#fff" strokeWidth="2" strokeLinecap="round" /><T x="70" y="118" s="11" c="#fff" a="end">Магма</T>
   </Svg>
 )
 const Mountain = () => (
@@ -152,7 +154,7 @@ const Hypso = () => (
     <rect x="128" y="100" width="104" height="42" fill={C.blue} />
     <path d="M128 100 L152 114 L182 120 L192 140 L206 140 L214 118 L232 114 V142 H128Z" fill={C.brownD} />
     <path d="M4 100 H236" stroke={INK} strokeWidth="1.5" strokeDasharray="4 5" opacity=".5" />
-    <T x="104" y="18" c={INK}>+8849 м</T><T x="170" y="94" s="11" c={INK}>0 м</T><T x="170" y="133" s="11" c="#fff">−11 км</T>
+    <T x="104" y="18" c={INK}>+8849 м</T><T x="170" y="94" s="11" c={INK}>0 м</T><path d="M199 117 V134" stroke="#fff" strokeWidth="2" strokeDasharray="3 3" /><T x="199" y="113" s="10.5" c="#fff">−11 км</T>
   </Svg>
 )
 const River = () => (
@@ -227,14 +229,20 @@ const Cyclone = () => (
 )
 const Tsunami = () => (
   <Svg label="Цунами">
-    <clipPath id="fg-ts"><rect x="8" y="10" width="224" height="130" rx="18" /></clipPath>
+    <clipPath id="fg-ts"><rect x="4" y="4" width="232" height="142" rx="16" /></clipPath>
     <g clipPath="url(#fg-ts)">
-      <rect x="8" y="10" width="224" height="130" fill={C.sky} /><rect x="8" y="76" width="224" height="70" fill={C.blue} />
-      <path d="M8 76 q12 -5 24 0 t24 0 t24 0 q22 -30 48 0 q22 -52 50 0 L232 76 V146 H8Z" fill={C.blue} stroke="#fff" strokeWidth="3" />
-      <path d="M8 130 H110 L190 112 L232 96 V146 H8Z" fill={C.brownD} /><path d="M206 100 L232 94 V70 H214Z" fill={C.sand} />
+      <rect x="4" y="4" width="232" height="142" fill={C.sky} />
+      <path d="M4 70 H120 Q150 70 162 46 Q170 30 182 40 Q176 50 184 60 Q192 70 200 70 V146 H4Z" fill={C.blue} />
+      <path d="M162 46 Q170 30 182 40 Q176 50 184 60" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+      <path d="M20 84 q10 -4 20 0 M60 92 q10 -4 20 0 M100 84 q10 -4 20 0" stroke="#fff" strokeWidth="2" fill="none" opacity=".6" strokeLinecap="round" />
+      <path d="M4 132 H70 L76 120 L84 136 H150 L196 104 L236 84 V146 H4Z" fill={C.brownD} />
+      <path d="M196 104 L236 84 V146 H196Z" fill={C.sand} />
+      <rect x="208" y="70" width="12" height="14" fill="#fff" /><path d="M206 71 L214 63 L222 71Z" fill={C.red} />
     </g>
-    <path d="M44 122 l6 -12 l6 12 M50 110 v-22" stroke={C.yellow} strokeWidth="3.5" fill="none" strokeLinecap="round" />
-    <T x="50" y="138" s="11.5" c="#fff">Очаг</T><T x="204" y="62" s="11.5" c={INK}>Берег</T>
+    <path d="M77 126 l-8 -10 M77 126 l10 -10 M77 126 v-14" stroke={C.yellow} strokeWidth="3" strokeLinecap="round" />
+    <circle cx="77" cy="126" r="4" fill={C.yellow} />
+    <path d="M100 52 H140" stroke={INK} strokeWidth="2.5" strokeLinecap="round" /><path d="M134 46 L141 52 L134 58" fill="none" stroke={INK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <T x="77" y="104" s="11" c="#fff">Очаг</T><T x="120" y="40" s="11" c={INK}>Волна растёт у берега</T><T x="214" y="58" s="11" c={INK}>Берег</T>
   </Svg>
 )
 const BANDS = [['Арктические пустыни', '#f1f5f9', INK], ['Тундра', '#b7d3c6', INK], ['Тайга', '#2f7a55', '#fff'], ['Смешанные леса', '#7fbf6a', '#10321a'], ['Степи', '#dccb6a', '#3b3200'], ['Пустыни', '#ebc283', '#4a2f05'], ['Саванны', '#c8b24c', '#3b3200'], ['Экваториальные леса', '#17753f', '#fff']]
@@ -312,6 +320,58 @@ const Clouds = () => (
 )
 
 
+/* ── Океан, люди, хозяйство, лёд ───────────────────── */
+const Head = ({ x, y, c, rot }) => <path d="M-6 -6 L4 0 L-6 6Z" fill={c} transform={`translate(${x} ${y}) rotate(${rot})`} />
+const Currents = () => (
+  <Svg label="Тёплые и холодные течения">
+    <rect x="4" y="4" width="232" height="142" rx="16" fill="#bfe6fb" />
+    <path d="M30 30 Q60 20 74 40 Q82 62 66 84 Q60 104 50 126 Q40 112 36 90 Q24 66 30 30Z" fill="#9fd36b" />
+    <path d="M170 24 Q206 22 214 44 Q220 70 204 92 Q196 118 184 128 Q172 106 174 84 Q160 60 170 24Z" fill="#9fd36b" />
+    <path d="M86 116 Q104 74 94 36" fill="none" stroke={C.red} strokeWidth="4" strokeLinecap="round" /><Head x={94} y={34} c={C.red} rot={-100} />
+    <path d="M156 34 Q144 72 158 112" fill="none" stroke={C.blueD} strokeWidth="4" strokeLinecap="round" /><Head x={159} y={115} c={C.blueD} rot={70} />
+    <T x="104" y="134" s="11" c={INK}>тёплое</T><T x="146" y="22" s="11" c={INK}>холодное</T>
+  </Svg>
+)
+const Person = ({ x, y, c }) => <g fill={c}><circle cx={x} cy={y} r="4" /><rect x={x - 4} y={y + 5} width="8" height="11" rx="4" /></g>
+const Population = () => (
+  <Svg label="Город и село">
+    <Sky />
+    <rect x="4" y="122" width="232" height="24" rx="10" fill={C.green} />
+    {[[18, 70, 22], [42, 50, 24], [68, 80, 20], [90, 40, 26], [118, 66, 22]].map(([x, y, w]) => (
+      <g key={x}><rect x={x} y={y} width={w} height={122 - y} rx="3" fill="#7c93a8" />{Array.from({ length: Math.floor((122 - y) / 14) }, (_, i) => <rect key={i} x={x + 5} y={y + 6 + i * 14} width={w - 10} height="5" rx="1.5" fill="#fde68a" opacity=".9" />)}</g>
+    ))}
+    {[26, 46, 66, 86, 106, 126].map((x) => <Person key={x} x={x} y={126} c={INK} />)}
+    <path d="M168 122 V100 L184 86 L200 100 V122Z" fill="#fff" /><path d="M164 102 L184 84 L204 102" fill="none" stroke={C.red} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+    <rect x="179" y="108" width="10" height="14" fill={C.brown} /><circle cx="218" cy="104" r="12" fill="#5fae4a" /><rect x="216" y="110" width="4" height="12" fill={C.brownD} />
+    <Person x={206} y={126} c={INK} />
+    <T x="76" y="24" s="11" c={INK}>город — плотно</T><T x="190" y="72" s="11" c={INK}>село</T>
+  </Svg>
+)
+const Sectors = () => (
+  <Svg label="Секторы экономики">
+    {[[40, C.green, 'добыча', 'I'], [120, C.orange, 'производство', 'II'], [200, C.blue, 'услуги', 'III']].map(([x, c, t, n]) => (
+      <g key={n}><circle cx={x} cy="66" r="32" fill={c} opacity=".18" /><T x={x} y="122" s="11">{t}</T><T x={x} y="140" s="10" c="var(--muted)">{`сектор ${n}`}</T></g>
+    ))}
+    <path d="M24 80 h32" stroke={C.greenD} strokeWidth="4" strokeLinecap="round" /><path d="M32 78 v-20 M40 78 v-26 M48 78 v-20" stroke="#d4a72c" strokeWidth="3.5" strokeLinecap="round" />
+    <path d="M100 82 V58 l12 8 V58 l12 8 V46 h8 v36Z" fill={C.orange} /><circle cx="136" cy="38" r="4" fill={C.gray} /><circle cx="142" cy="30" r="5" fill={C.gray} opacity=".7" />
+    <path d="M184 82 h32 M187 82 V60 M196 82 V60 M205 82 V60 M213 82 V60 M182 58 L200 46 L218 58Z" stroke={C.blueD} strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M76 66 h10 M156 66 h10" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" /><path d="M83 61 l5 5 -5 5 M163 61 l5 5 -5 5" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+)
+const Iceberg = () => (
+  <Svg label="Ледник и айсберг">
+    <clipPath id="fg-ice"><rect x="4" y="4" width="232" height="142" rx="16" /></clipPath>
+    <g clipPath="url(#fg-ice)">
+      <rect x="4" y="4" width="232" height="142" fill={C.sky} /><rect x="4" y="70" width="232" height="80" fill={C.blue} />
+      <path d="M4 70 V30 L30 22 L58 34 L74 70Z" fill="#fff" /><path d="M58 34 L74 70 H66 L52 40Z" fill="#cfeafa" />
+      <path d="M130 70 L120 98 L132 132 L176 140 L204 112 L196 70Z" fill="#e6f6fe" opacity=".75" />
+      <path d="M138 70 L150 46 L166 40 L182 52 L190 70Z" fill="#fff" />
+    </g>
+    <path d="M4 70 H236" stroke="#fff" strokeWidth="2" opacity=".8" />
+    <T x="40" y="16" s="11" c={INK}>ледник</T><T x="210" y="36" s="11" c={INK}>айсберг</T><T x="164" y="104" s="10.5" c={INK}>под водой ~90%</T>
+  </Svg>
+)
+
 /* ── Казахстан ───────────────────────────────────────── */
 const gx = (lon) => 26 + (lon - 46.5) * 5, gy = (lat) => 22 + (55.4 - lat) * 7.6
 const P = (pts) => pts.map(([a, b]) => `${gx(a).toFixed(1)} ${gy(b).toFixed(1)}`).join(' L')
@@ -339,13 +399,13 @@ const KzWater = () => (
     <path d={`M${P([[59.8, 46.6], [61.2, 46.8], [61.6, 45.6], [60.0, 45.0], [59.2, 45.8]])}Z`} fill={C.blue} />
     {[[[86.2, 47.3], [83.5, 47.8], [81.5, 49.0], [79.0, 50.4], [76.8, 52.3], [75.5, 53.5]], [[70.5, 41.0], [68.5, 41.8], [66.0, 43.2], [63.5, 44.7], [61.2, 46.0]], [[56.5, 51.0], [51.4, 51.2], [50.5, 49.5], [51.9, 47.1]], [[80.0, 43.8], [76.5, 44.2], [75.0, 45.5], [74.7, 46.3]]].map((r, i) => <path key={i} d={`M${P(r)}`} fill="none" stroke={C.blue} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />)}
     <path d={KZ} fill="none" stroke="var(--muted)" strokeWidth="2" opacity=".6" />
-    <T x="46" y="143" s="11">Каспий</T><T x="88" y="86" s="11" a="end">Арал</T><T x="170" y="94" s="11">Балхаш</T><T x="196" y="30" s="11">Иртыш</T>
+    <T x="46" y="143" s="11">Каспий</T><T x="88" y="86" s="11" a="end">Арал</T><T x="176" y="110" s="11">Балхаш</T><T x="196" y="30" s="11">Иртыш</T>
   </Svg>
 )
 const KzCities = () => (
   <Svg label="Города Казахстана">
     <Country fill="var(--muted)" op={0.14} />
-    <City lon={71.4} lat={51.2} label="Астана" star dy={-11} /><City lon={76.9} lat={43.25} label="Алматы" dy={-9} dx={6} /><City lon={69.6} lat={42.3} label="Шымкент" dy={18} /><City lon={51.2} lat={43.65} label="Актау" dx={14} dy={16} />
+    <City lon={71.4} lat={51.2} label="Астана" star dy={-11} /><City lon={76.9} lat={43.25} label="Алматы" dy={-9} dx={6} /><City lon={69.6} lat={42.3} label="Шымкент" dy={18} /><City lon={51.2} lat={43.65} label="Актау" dx={22} dy={4} />
   </Svg>
 )
 const KzNature = () => (
@@ -398,6 +458,7 @@ export const FIGS = {
   compass: Compass, grid: Grid, contour: Contour, scale: Scale, seasons: Seasons, tzones: TimeZones,
   earth: EarthLayers, layers: Layers, epicenter: Epicenter, plates: Plates, volcano: Volcano, mountain: Mountain, hypso: Hypso, river: River,
   watercycle: WaterCycle, greenhouse: Greenhouse, climate: ClimateBelts, wind: WindFig,
+  currents: Currents, population: Population, sectors: Sectors, iceberg: Iceberg,
   cyclone: Cyclone, tsunami: Tsunami, biomes: Biomes, energy: Energy, pyramid: Pyramid, hemis: Hemis, clouds: Clouds,
   kzmap: KzMap, kzwater: KzWater, kzcities: KzCities, kznature: KzNature, kzres: KzRes, kzspace: KzSpace, kzyurt: KzYurt,
 }

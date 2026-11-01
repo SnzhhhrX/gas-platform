@@ -14,6 +14,11 @@ import { Inf, Sheet } from './ui'
 import { checkTyped } from '../lib/typed'
 import { ChallengeTimer } from './ProMedia'
 import FixRound from './FixRound'
+import { OrderTask, MatchTask } from './Tasks'
+import { islandName } from '../data/islands'
+
+// Задания на карте, порядок и пары не переигрываются в «Исправить ошибки»: там только вопросы с вариантами и вводом
+const fixable = (w) => !['map', 'mapid', 'order', 'match'].includes(w.type)
 
 // Разбор конкретной ошибки: пояснение к выбранному неверному варианту (если оно написано для этого вопроса)
 function pickedMiss(q, picked, isMulti, isInput, isMap) {
@@ -32,7 +37,10 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
   const [wrong, setWrong] = useState([])
   const [combo, setCombo] = useState(0)
   const [run, setRun] = useState(0) // неверных подряд — для слов поддержки
-  const [hints, setHints] = useState(1)
+  const pro = hearts === Infinity // безлимит сердец есть только у Pro
+  const [hints, setHints] = useState(pro ? 3 : 1)
+  const [retried, setRetried] = useState(false) // Pro: «второй шанс» — один раз за урок
+  const [chance, setChance] = useState(false) // показан ли сейчас второй шанс
   const [faded, setFaded] = useState([])
   const [hinted, setHinted] = useState(false)
   const [dead, setDead] = useState(hearts <= 0)
@@ -55,9 +63,11 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
   }, [confirmExit])
 
   const q = qs[step]
+  const pic = lesson.img || LESSON_IMG[lesson.id] || lesson.fig // своя картинка урока или иллюстрация главы
   const isMap = q?.type === 'map'
   const isShow = q?.type === 'mapid'
   const isInput = q?.type === 'input'
+  const isOrder = q?.type === 'order', isMatch = q?.type === 'match', isTask = isOrder || isMatch
   const [typed, setTyped] = useState('')
   const stars = score === qs.length ? 3 : score >= qs.length * 0.6 ? 2 : score > 0 ? 1 : 0
 
@@ -80,7 +90,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next() }
         return
       }
-      if (isMap || isInput) return
+      if (isMap || isInput || isTask) return
       const map = { '1': 0, '2': 1, '3': 2, 'а': 0, 'б': 1, 'в': 2, 'a': 0, 'b': 1, 'c': 2 }
       const i = map[e.key.toLowerCase()]
       if (i != null && i < (q?.options?.length ?? 0) && !faded.includes(i)) {
@@ -104,6 +114,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
       return a === b
     }
     if (isInput) return checkTyped(q, i)
+    if (isTask) return !!i?.ok
     return i === q.answer
   }
 
@@ -119,6 +130,15 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
     }
     const choice = isMulti ? (Array.isArray(i) ? i : sel) : i
     if (isMulti && (!Array.isArray(choice) || !choice.length)) return
+    // Pro: первая ошибка в уроке не раскрывает ответ — можно попробовать ещё раз, неверный вариант гаснет
+    if (pro && !retried && !isCorrect(choice)) {
+      setRetried(true); setChance(true); setCombo(0)
+      if (typeof choice === 'number') setFaded((f) => [...f, choice])
+      if (isMulti) setSel(null)
+      play('bad', sound)
+      return
+    }
+    setChance(false)
     setPicked(isMulti ? choice : i)
     if (isCorrect(choice)) {
       setScore((s) => s + 1)
@@ -137,18 +157,17 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
       onLoseHeart()
       setWrong((w) => [...w, {
         q: q.q, type: q.type, target: q.target, region: q.region, img: q.img, answers: q.answers,
-        options: q.options, answer: isInput ? q.answers[0] : q.answer, why: q.why, miss: q.miss,
-        picked: isInput ? String(choice) : isMap ? nameOf(choice) : (Array.isArray(choice) ? choice.map((x) => q.options[x]).join(', ') : q.options[choice]),
+        options: q.options, answer: isInput ? q.answers[0] : isOrder ? q.items.join(' → ') : isMatch ? q.pairs.map((x) => x.join(' — ')).join('; ') : q.answer, why: q.why, miss: q.miss,
+        picked: isInput ? String(choice) : isTask ? choice.text : isMap ? (q.shapes ? islandName(choice) : nameOf(choice)) : (Array.isArray(choice) ? choice.map((x) => q.options[x]).join(', ') : q.options[choice]),
       }])
     }
   }
 
   const hint = () => {
-    if (!hints || picked !== null) return
-    setHints(0)
+    if (!hints || picked !== null || hinted || faded.length) return
+    setHints((h) => h - 1)
     play('click', sound)
-    if (isMap) return setHinted(true)
-    if (isInput) return setHinted(true)
+    if (isMap || isInput || isTask) return setHinted(true)
     const pool = q.options.map((_, i) => i).filter((x) => x !== q.answer)
     setFaded(pool.sort(() => Math.random() - 0.5).slice(0, 1))
   }
@@ -166,6 +185,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
     setFaded([])
     setHinted(false)
     setTyped('')
+    setChance(false)
     setStep(step + 1)
   }
 
@@ -191,7 +211,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
         )}
         <div className="pills">
           {combo >= 2 && <span className="chip hot" key={combo}><Icon name="flame" size={14} />×{combo}</span>}
-          <button className="chip" disabled={!hints || picked !== null} onClick={hint} aria-label="Подсказка">
+          <button className="chip" disabled={!hints || picked !== null || hinted || faded.length > 0} onClick={hint} aria-label="Подсказка">
             <Icon name="bulb" size={20} />{hints}
           </button>
           <span className="chip heart"><Icon name="heart" size={20} />{localHearts === Infinity ? <Inf size={18} /> : (Number.isInteger(localHearts) ? localHearts : localHearts.toFixed(1))}</span>
@@ -203,7 +223,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
           <small className="kicker" style={{ '--c': lesson.color }}><Icon name={lesson.read ? 'book' : 'bulb'} size={14} /> {`${lesson.read ? 'Конспект' : 'Объяснение'} · ${ci + 1}/${cards.length}`}</small>
           {ci === 0 && lesson.goal && <div className="rd-goal"><Icon name="target" size={18} /><div><small>Цель урока</small><p>{lesson.goal}</p></div></div>}
           <h1>{cards[ci].h}</h1>
-          {ci === 0 && LESSON_IMG[lesson.id] && <QImage id={LESSON_IMG[lesson.id]} />}
+          {ci === 0 && pic && <QImage id={pic} />}
           <p className="text">{cards[ci].p}</p>
           {cards[ci].example && (
             <div className="rd-example">
@@ -225,10 +245,10 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
 
       {step === -1 && !cards && (
         <div className="pop lesson-intro">
-          {(lesson.img || LESSON_IMG[lesson.id]) ? <Mascot mood={lesson.test ? 'think' : 'happy'} size={92} /> : <LessonArt icon={lesson.icon} color={lesson.color} mood={lesson.test ? 'think' : 'happy'} />}
+          {pic ? <Mascot mood={lesson.test ? 'think' : 'happy'} size={92} /> : <LessonArt icon={lesson.icon} color={lesson.color} mood={lesson.test ? 'think' : 'happy'} />}
           <small className="kicker">{lesson.test ? 'Проверка' : lesson.review ? 'Повторение' : 'Урок'}</small>
           <h1>{lesson.title}</h1>
-          {(lesson.img || LESSON_IMG[lesson.id]) && <QImage id={lesson.img || LESSON_IMG[lesson.id]} />}
+          {pic && <QImage id={pic} />}
           <p className="text">{lesson.text}</p>
           {lesson.goal && <div className="rd-goal"><Icon name="target" size={18} /><div><small>Цель урока</small><p>{lesson.goal}</p></div></div>}
           <div className="meta"><span><Icon name="target" size={15} />{qs.length} вопр.</span><span><Icon name="timer" size={15} />~{Math.max(1, Math.round(qs.length * 0.5))} мин</span><span><Icon name="zap" size={15} />до +{calcXp(qs.length)} XP</span></div>
@@ -244,11 +264,16 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
               ? <><Icon name="map" size={14} /> Задание на карте</>
               : isInput
                 ? <><Icon name="edit" size={14} /> Впишите ответ · {step + 1}/{qs.length}</>
+              : isOrder
+                ? <><Icon name="list" size={14} /> {tr('Расставьте по порядку')} · {step + 1}/{qs.length}</>
+              : isMatch
+                ? <><Icon name="repeat" size={14} /> {tr('Соедините пары')} · {step + 1}/{qs.length}</>
               : isMulti
                 ? <><Icon name="check" size={14} /> Выберите все верные · {step + 1}/{qs.length}</>
                 : `Вопрос ${step + 1} из ${qs.length}`}
           </small>
           <h2 className="question">{q.q}</h2>
+          {chance && picked === null && <p className="chance" role="status"><Icon name="redo" size={16} /><span><b>{tr('Не то — второй шанс')}</b>{tr('Pro: ошибка не засчитана, попробуйте ещё раз')}</span></p>}
           {q.img && <QImage id={q.img} />}
           {isInput ? (
             <form className="typed" onSubmit={(e) => { e.preventDefault(); if (typed.trim() && picked === null) answer(typed.trim()) }}>
@@ -258,16 +283,20 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
               {picked === null && <button className="btn" disabled={!typed.trim()}>Проверить</button>}
               {picked !== null && !isCorrect(picked) && <small className="typed-hint">Правильный ответ: <b>{q.answers[0]}</b></small>}
             </form>
+          ) : isTask ? (
+            isOrder
+              ? <OrderTask key={step} q={q} done={picked !== null} hinted={hinted} onSubmit={answer} />
+              : <MatchTask key={step} q={q} done={picked !== null} hinted={hinted} onSubmit={answer} />
           ) : isMap ? (
             <>
-              <WorldMap region={q.region} picked={picked} answer={q.answer} selected={sel} onSelect={setSel} hinted={hinted} />
+              <WorldMap region={q.region} shapes={q.shapes} picked={picked} answer={q.answer} selected={sel} onSelect={setSel} hinted={hinted} />
               {picked === null && (
                 <button className="btn" disabled={!sel} onClick={() => answer(sel)}>Проверить</button>
               )}
             </>
           ) : (
             <>
-              {isShow && <WorldMap mode="show" answer={q.target} />}
+              {isShow && <WorldMap mode="show" shapes={q.shapes} answer={q.target} />}
               <div className="options" role="listbox" aria-label="Варианты ответа">
                 {q.options.map((o, i) => {
                   const multiOn = isMulti && Array.isArray(sel) && sel.includes(i)
@@ -304,7 +333,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
                   <div className="fb-head"><Mascot mood={r.mood} size={52} /><div><b>{head}</b>{r.note && <small className="fb-note">{tr(r.note)}</small>}</div></div>
                 )
               })()}
-              {!isCorrect(picked) && !isInput && !isMap && !isShow && (
+              {!isCorrect(picked) && !isInput && !isMap && !isShow && !isTask && (
                 <p className="fb-pick">Вы выбрали <b>{isMulti ? picked.map((x) => q.options[x]).join(', ') : q.options[picked]}</b> · верно <b>{isMulti ? q.answer.map((x) => q.options[x]).join(', ') : q.options[q.answer]}</b></p>
               )}
               {!isCorrect(picked) && pickedMiss(q, picked, isMulti, isInput, isMap) && (
@@ -323,7 +352,7 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
       )}
 
       {step === qs.length && fixOpen && (
-        <FixRound items={wrong.filter((w) => w.type !== 'map' && w.type !== 'mapid')} sound={sound} onDone={(k) => { setFixed(k); setFixOpen(false) }} />
+        <FixRound items={wrong.filter(fixable)} sound={sound} onDone={(k) => { setFixed(k); setFixOpen(false) }} />
       )}
       {step === qs.length && !fixOpen && (
         <div className="pop center result">
@@ -345,9 +374,9 @@ export default function Lesson({ lesson, calcXp, repeat, hearts, sound = true, o
           </p>
           {wrong.length > 0 && (
             <div className="mistakes">
-              {fixed !== null && <p className="fix-done"><Icon name="check" size={16} /> {`Исправлено ошибок: ${fixed} из ${wrong.filter((w) => w.type !== 'map' && w.type !== 'mapid').length}`}</p>}
-              {fixed === null && wrong.some((w) => w.type !== 'map' && w.type !== 'mapid') && (
-                <button type="button" className="btn ghost" onClick={() => setFixOpen(true)}>{`Исправить ошибки (${wrong.filter((w) => w.type !== 'map' && w.type !== 'mapid').length})`}</button>
+              {fixed !== null && <p className="fix-done"><Icon name="check" size={16} /> {`Исправлено ошибок: ${fixed} из ${wrong.filter(fixable).length}`}</p>}
+              {fixed === null && wrong.some(fixable) && (
+                <button type="button" className="btn ghost" onClick={() => setFixOpen(true)}>{`Исправить ошибки (${wrong.filter(fixable).length})`}</button>
               )}
               <details>
                 <summary>{`Разбор ошибок (${wrong.length})`}</summary>

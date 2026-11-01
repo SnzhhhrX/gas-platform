@@ -194,3 +194,135 @@ svg.inf{display:block;flex:none}
 .pro-topics .pro-lessons{padding:0 14px 14px}
 .pro-off{display:block;min-height:36px;margin:0 auto;padding:0 12px;border:0;background:none;color:var(--muted);font:inherit;font-size:.84rem;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 @media (hover:hover){.pro-off:hover{color:var(--red)}}
+
+/* Гас «живой», но спокойный: дыхание всегда, остальное — по настроению. При reduce motion всё стоит */
+.mascot .m-body,.mascot .m-shadow{transform-box:view-box}
+@media (prefers-reduced-motion:no-preference){
+  .mascot.anim .m-body{transform-origin:60px 110px;animation:gas-breathe 3.6s ease-in-out infinite}
+  .mascot.anim .m-shadow{transform-origin:60px 113px;animation:gas-shadow 3.6s ease-in-out infinite}
+  .mascot.anim.m-think .m-body{animation:gas-ponder 5s ease-in-out infinite}
+  .mascot.anim.m-oops .m-body{animation:gas-shake .6s ease-in-out .15s 1,gas-breathe 3.6s ease-in-out .8s infinite}
+  .mascot.anim.m-wow .m-body{animation:gas-jolt .5s var(--ease-out) 1,gas-breathe 3.6s ease-in-out .5s infinite}
+  .mascot.anim.m-sleep .m-body{animation:gas-sleep 5s ease-in-out infinite}
+  .mascot.anim.m-sleep .m-shadow{animation:none}
+}
+@keyframes gas-breathe{0%,100%{transform:none}50%{transform:translateY(-2px)}}
+@keyframes gas-shadow{0%,100%{transform:none;opacity:.12}50%{transform:scaleX(.9);opacity:.08}}
+@keyframes gas-ponder{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}70%{transform:rotate(2.5deg)}}
+@keyframes gas-shake{20%{transform:rotate(-5deg)}40%{transform:rotate(4deg)}60%{transform:rotate(-2.5deg)}80%{transform:rotate(1.5deg)}100%{transform:none}}
+@keyframes gas-jolt{35%{transform:translateY(-6px)}100%{transform:none}}
+@keyframes gas-sleep{0%,100%{transform:none}50%{transform:scale(1.015,.985)}}
+
+/* Окно Pro: шапка целиком в золоте кнопки, статистика ниже — на белом */
+:root:root .pro-modal .pro-hero{position:relative;overflow:hidden;margin:0 -18px;padding:30px 60px 26px 20px;background:#f59e0b;color:#1c1100;column-gap:16px}
+.pro-modal .pro-hero::before{content:'';position:absolute;right:-70px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22) 0 38%,transparent 39%),radial-gradient(circle,transparent 0 55%,rgba(255,255,255,.16) 55.5% 56.5%,transparent 57%),radial-gradient(circle,transparent 0 72%,rgba(255,255,255,.12) 72.5% 73.5%,transparent 74%);pointer-events:none}
+:root:root .pro-modal .pro-hero h1{position:relative;display:flex;align-items:center;gap:8px;color:#1c1100;font-size:1.6rem;letter-spacing:-.02em}
+.pro-modal .pro-hero h1::after{content:'PRO';padding:2px 7px;border-radius:7px;background:#1c1100;color:#fbbf24;font-size:.62rem;font-weight:900;letter-spacing:.08em}
+:root:root .pro-modal .pro-hero p{position:relative;color:rgba(28,17,0,.72);font-weight:700}
+:root:root .pro-modal .pro-hero .pro-mascot{position:relative;width:92px;height:92px;border-radius:28px;background:rgba(255,255,255,.28);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+:root:root .pro-modal .pro-hero .pro-on{background:#fff;color:#15803d}
+.sheet.tall:has(.pro-modal) .close{background:rgba(255,255,255,.4);color:#1c1100}
+.sheet.tall:has(.pro-modal)::before{background:rgba(28,17,0,.25)}
+:root:root .pro-modal .pro-stats{margin-top:0;border-top:0}
+
+/* Задания «порядок» и «пары»: в стиле вариантов ответа, без лишних эффектов */
+.task{display:grid;gap:12px}
+.task .btn{margin-top:4px}
+.ord-ends{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:.78rem;font-weight:700}
+.ord-ends svg{opacity:.6}
+.ord-seq{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.ord-slot{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 8px 6px 6px;border:1.5px dashed var(--line);border-radius:var(--r);background:transparent;transition:border-color .15s,background .15s}
+.ord-slot.full{border-style:solid;background:var(--card)}
+.ord-slot.right{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--card))}
+.ord-slot.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--card))}
+.ord-n{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:9px;background:var(--bg);color:var(--muted);font-size:.8rem;font-weight:800}
+.ord-slot.full .ord-n{background:var(--green-l);color:var(--green-d)}
+.ord-slot.wrong .ord-n{background:color-mix(in srgb,var(--red) 14%,var(--card));color:var(--red)}
+.ord-ph{color:var(--muted);font-size:.84rem}
+.ord-item{flex:1;min-height:0;padding:8px 6px;border:0;background:none;color:var(--text);font:inherit;font-weight:700;text-align:left;cursor:pointer}
+.ord-item:disabled{cursor:default;color:var(--text)}
+.ord-pool{display:flex;flex-wrap:wrap;gap:8px}
+.ord-chip{min-height:44px;padding:8px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font:inherit;font-weight:700;cursor:pointer;box-shadow:0 2px 0 var(--line);transition:transform .12s var(--ease-out),border-color .15s}
+@media (hover:hover){.ord-chip:hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+.ord-chip:active{transform:translateY(1px);box-shadow:0 1px 0 var(--line)}
+.task-right{margin:0;padding:10px 12px;border-radius:12px;background:var(--bg);color:var(--soft);font-size:.88rem;line-height:1.45}
+.mt-key{display:grid;gap:4px;list-style:none}
+.mt-tip{margin:0;min-height:1.2em;color:var(--muted);font-size:.84rem}
+.mt-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mt-col{display:grid;gap:8px;align-content:start}
+.mt-item{min-height:52px;padding:8px 10px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font:inherit;font-size:.88rem;font-weight:700;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:border-color .15s,background .15s}
+.mt-item:disabled{cursor:default;opacity:1;color:var(--text)}
+.mt-item.act{border-color:var(--green);background:var(--green-l)}
+.mt-item.on{border-color:var(--t);background:color-mix(in srgb,var(--t) 12%,var(--card))}
+.mt-item.right{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--card))}
+.mt-item.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--card))}
+@media (hover:hover){.mt-item:not(:disabled):not(.on):not(.act):hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line))}}
+
+/* Pro: второй шанс */
+.feedback .btn.retry{gap:8px;margin-top:10px}
+
+/* Выбор сложности игры */
+.lv-pick{display:grid;gap:8px;padding:8px 2px 4px}
+.lv-pick h2{margin:0;font-size:1.3rem}
+.lv-pick .page-sub{margin:0 0 6px}
+.lv-opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s}
+@media (hover:hover){.lv-opt:hover{border-color:var(--c)}}
+.lv-opt > svg{color:var(--muted);flex:none}
+.lv-bars{display:flex;align-items:flex-end;gap:3px;flex:none;height:22px}
+.lv-bars i{width:6px;border-radius:3px;background:var(--line)}
+.lv-bars i:nth-child(1){height:9px}.lv-bars i:nth-child(2){height:15px}.lv-bars i:nth-child(3){height:22px}
+.lv-bars i.on{background:var(--c)}
+.lv-txt{display:grid;flex:1;min-width:0}
+.lv-txt b{font-size:1rem}
+.lv-txt small{color:var(--muted);font-size:.8rem}
+.lesson .chance{display:flex;align-items:center;gap:10px;margin:0 0 4px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,#f59e0b 14%,var(--card));color:var(--text);font-size:.86rem;animation:feedback-in .2s var(--ease-out)}
+.lesson .chance svg{flex:none;color:#d97706}
+.lesson .chance span{display:grid}
+.lesson .chance small,.lesson .chance span{color:var(--soft)}
+.lesson .chance b{color:var(--text)}
+
+/* Календарь в статистике: ячейки на всю колонку, «сегодня» — зелёный контур, первое число подписано месяцем */
+:root:root .ps-cal{gap:6px}
+:root:root .ps-cal i{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;height:40px;max-height:none;aspect-ratio:auto;border-radius:10px;line-height:1.05}
+:root:root .ps-cal i span{font-size:.74rem}
+.ps-cal i small{font-size:.56rem;font-weight:800;color:var(--muted);text-transform:lowercase}
+.ps-cal i.om span{opacity:.55}
+.ps-cal i.l2 small,.ps-cal i.l3 small{color:#fff}
+:root:root .ps-cal i.today{box-shadow:inset 0 0 0 2px var(--green)}
+.ps-cal i.today span{color:var(--green-d);font-weight:900;opacity:1}
+.ps-cal i.today.l2 span,.ps-cal i.today.l3 span{color:#fff}
+@media (min-width:1100px){:root:root .ps-cal i{height:44px}}
+
+/* Выбор языка в настройках: три плитки в ряд */
+:root:root .lang-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+:root:root .lang-list .lang-opt{position:relative;flex-direction:column;justify-content:center;gap:8px;min-height:104px;padding:14px 6px 12px;border:1.5px solid var(--line);border-radius:16px;background:var(--card);text-align:center}
+.lang-list .lang-code{width:40px;height:40px;border-radius:50%;font-size:.78rem}
+.lang-list .lang-name{justify-items:center;text-align:center}
+.lang-list .lang-name b{font-size:.9rem;overflow-wrap:anywhere}
+.lang-list .lang-name small{font-size:.7rem}
+.lang-list .lang-ok{position:absolute;top:8px;right:8px;width:18px;height:18px;padding:2px;border-radius:50%;background:var(--green);color:#fff}
+:root:root .lang-list .lang-opt.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--card))}
+@media (hover:hover){:root:root .lang-list .lang-opt:not(.on):hover{border-color:color-mix(in srgb,var(--text) 22%,var(--line));background:var(--card)}}
+
+/* Профиль: строка «страна · любимая страна · с какого времени» под ником */
+.pf-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;margin:6px 0 0;color:var(--muted);font-size:.8rem;font-weight:600}
+.pf-meta span{display:inline-flex;align-items:center;gap:4px}
+.pf-meta svg{opacity:.8}
+
+/* Уровень — отдельная карточка, без линии-разделителя */
+:root:root .profile-side .profile-level{margin:12px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:20px;background:var(--card)}
+
+/* Награды: прогресс сверху, компактная сетка, подробности по нажатию */
+.ach-top{display:grid;gap:8px;margin:4px 0 14px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.ach-top > div{display:flex;align-items:baseline;gap:6px}
+.ach-top b{font-size:1.5rem;font-weight:900;line-height:1}
+.ach-top span{color:var(--muted);font-weight:800}
+.ach-top small{margin-left:auto;color:var(--muted);font-size:.8rem;font-weight:600}
+:root:root .profile-page .ach-grid.ach-compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:none;width:100%}
+:root:root .ach-compact .ach{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-height:112px;padding:14px 6px 12px;border-radius:16px;text-align:center;opacity:1}
+.ach-compact .ach b{font-size:.78rem;line-height:1.2;overflow-wrap:anywhere}
+.ach-compact .ach:not(.on){background:transparent;border-style:dashed}
+.ach-compact .ach:not(.on) b{color:var(--muted)}
+.ach-compact .ach .tile{width:44px;height:44px}
+@media (min-width:700px){:root:root .profile-page .ach-grid.ach-compact{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:1500px){:root:root .profile-page .ach-grid.ach-compact{grid-template-columns:repeat(6,minmax(0,1fr))}}

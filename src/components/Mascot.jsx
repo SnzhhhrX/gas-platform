@@ -27,7 +27,8 @@ export function Mascot({ mood = 'happy', size = 96, className = '', anim = true 
   const arm = (d, key) => <path key={key} d={d} fill="none" stroke={OCEAN_D} strokeWidth="9" strokeLinecap="round" />
   return (
     <svg className={`mascot m-${mood}${anim ? ' anim' : ''} ${className}`} width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="Глобус Гас">
-      <ellipse cx="60" cy="113" rx="28" ry="4" fill="#000" opacity=".12" />
+      <ellipse className="m-shadow" cx="60" cy="113" rx="28" ry="4" fill="#000" opacity=".12" />
+      <g className="m-body">
       {/* руки: короткие округлые штрихи */}
       {up ? <>{arm('M17 62 Q5 52 9 38')}{arm('M103 62 Q115 52 111 38')}</>
         : <>{arm('M16 70 Q8 78 12 88')}{wave ? <g className="m-arm">{arm('M104 62 Q116 52 112 38')}</g> : arm('M104 70 Q112 78 108 88')}</>}
@@ -61,6 +62,7 @@ export function Mascot({ mood = 'happy', size = 96, className = '', anim = true 
       {mouth}
       {up && <g fill="#ffc800" className="m-spark"><path d="M103 14 l2.2 5 5 2.2 -5 2.2 -2.2 5 -2.2 -5 -5 -2.2 5 -2.2z" /><path d="M15 16 l1.8 4 4 1.8 -4 1.8 -1.8 4 -1.8 -4 -4 -1.8 4 -1.8z" /></g>}
       {mood === 'sleep' && <g fill="none" stroke="#7a8b99" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="m-z"><path d="M96 20 h10 l-10 11 h10" /><path d="M108 6 h7 l-7 8 h7" strokeWidth="2.4" /></g>}
+      </g>
     </svg>
   )
 }

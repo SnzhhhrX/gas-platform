@@ -63,6 +63,7 @@ export default function Blitz({ record, rival = null, sound, onFinish, onExit })
           ? <p className="bz-rival"><Icon name="zap" size={16} />{tr('Вызов')}: {tr('побейте рекорд')} <b>{rival.name}</b> — <b>{rival.score}</b></p>
           : <p className="hint-keys">Ваш рекорд: {record}</p>}
         <button className="btn" onClick={start}>{rival ? tr('Принять вызов') : 'Старт'}</button>
+        <button className="btn ghost" onClick={onExit}>{tr('Назад')}</button>
       </div>
     </section>
   )

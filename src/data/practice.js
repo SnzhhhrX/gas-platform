@@ -1,6 +1,7 @@
 // Тренировки: вопросы генерируются заново при каждом запуске из списка стран (INFO + карта).
 import { INFO } from './capitals'
 import { COUNTRIES, nameOf } from './world'
+import { ISLANDS, LEVELS } from './islands'
 
 const shuffle = (a) => [...a].sort(() => Math.random() - 0.5)
 export const quizPool = COUNTRIES.filter((c) => INFO[c.id])
@@ -30,29 +31,17 @@ export const identifyLesson = () => base('practice-identify', 'Какая стр
     return { type: 'mapid', q: 'Какая страна выделена на карте?', target: c.id, region: 'world', options, answer, why: `Это ${nameOf(c.id)}. Столица — ${INFO[c.id].cap}.` }
   }))
 
-// Настоящие острова и островные государства (без материковых вроде Катара или Гайаны)
-const ISLAND_IDS = new Set([
-  '144', '192', '196', '242', '332', '214', '352', '360', '372', '388', '392', '450', '548', '554', '598', '608',
-  '626', '780', '826', '044', '090', '304', // Шри-Ланка, Куба, Кипр, Фиджи, Гаити, Доминикана, Исландия, Индонезия, Ирландия, Ямайка, Япония, Мадагаскар, Вануату, Н. Зеландия, ПНГ, Филиппины, В. Тимор, Тринидад, Британия, Багамы, Соломоновы, Гренландия
-])
-const islandPool0 = quizPool.filter((c) => ISLAND_IDS.has(c.id))
-const islandPool = islandPool0.length >= 4 ? islandPool0 : findPool // страховка: урок никогда не бывает пустым
-const islandFind = islandPool.filter((c) => c.size >= 3).length >= 8 ? islandPool.filter((c) => c.size >= 3) : islandPool
-const islandNames = islandPool.map((c) => nameOf(c.id))
+// Острова: настоящие острова (Ява, Сицилия, Калимантан…), а не страны. Уровень сложности выбирается перед игрой.
+const islandsOf = (level) => ISLANDS.filter((x) => x.level === level)
+const lvName = (level) => LEVELS.find((l) => l[0] === level)?.[1] ?? ''
 
-export const islandsLesson = () => base('practice-islands', 'Острова', 'anchor', '#14b8a6', 'Найдите острова и островные государства на глобусе. Подсказка покажет область поиска.',
-  shuffle(islandFind).slice(0, 8).map((c) => ({
-    type: 'map',
-    q: `Найдите остров: ${nameOf(c.id)}`,
-    answer: c.id,
-    region: 'world',
-    why: `${nameOf(c.id)} — островное государство. Столица — ${INFO[c.id].cap}.`,
-  })))
+export const islandsLesson = (level = 1) => base(`practice-islands-${level}`, `Острова · ${lvName(level)}`, 'anchor', '#14b8a6', 'Найдите на глобусе настоящие острова. Подсказка покажет область поиска.',
+  shuffle(islandsOf(level)).slice(0, 8).map((c) => ({ type: 'map', shapes: 'islands', q: `Найдите остров ${c.name}`, answer: c.id, region: 'world', why: c.fact })))
 
-export const islandsIdLesson = () => base('practice-islands-id', 'Какой остров?', 'waves', '#06b6d4', 'Остров выделен на глобусе — выберите его название среди других островов.',
-  shuffle(islandPool).slice(0, 8).map((c) => {
-    const [options, answer] = withDistractors(nameOf(c.id), islandNames)
-    return { type: 'mapid', q: 'Какой остров или архипелаг выделен на глобусе?', target: c.id, region: 'world', options, answer, why: `Это ${nameOf(c.id)}. Столица — ${INFO[c.id].cap}.` }
+export const islandsIdLesson = (level = 1) => base(`practice-islands-id-${level}`, `Какой остров? · ${lvName(level)}`, 'waves', '#06b6d4', 'Остров выделен на глобусе — выберите его название.',
+  shuffle(islandsOf(level)).slice(0, 8).map((c) => {
+    const [options, answer] = withDistractors(c.name, islandsOf(level).map((x) => x.name))
+    return { type: 'mapid', shapes: 'islands', q: 'Какой остров выделен на глобусе?', target: c.id, region: 'world', options, answer, why: c.fact }
   }))
 
 export const capitalsInputLesson = () => base('practice-capitals-input', 'Столицы · ввод', 'edit', '#a855f7', 'Впишите столицу. Регистр не важен.',
@@ -68,6 +57,7 @@ export const PRACTICE = [
   ['capitals-in', 'edit', '#a855f7', 'Столицы · ввод', '10 вопросов с клавиатуры', capitalsInputLesson],
   ['find', 'target', '#ec4899', 'Найди на карте', '8 заданий на глобусе', findLesson],
   ['identify', 'globe', '#0ea5e9', 'Какая страна?', '8 заданий на глобусе', identifyLesson],
-  ['islands', 'anchor', '#14b8a6', 'Острова', 'Найдите 8 островов на глобусе', islandsLesson],
-  ['islands-id', 'waves', '#06b6d4', 'Какой остров?', 'Угадайте остров по глобусу', islandsIdLesson],
+  // седьмой элемент — перед стартом выбрать уровень сложности
+  ['islands', 'anchor', '#14b8a6', 'Острова', 'Ява, Сицилия, Калимантан — найдите на глобусе', islandsLesson, true],
+  ['islands-id', 'waves', '#06b6d4', 'Какой остров?', 'Узнайте остров по контуру', islandsIdLesson, true],
 ]

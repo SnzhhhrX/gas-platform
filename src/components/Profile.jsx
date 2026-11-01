@@ -23,6 +23,7 @@ const Count = ({ v }) => <>{v}</>
 
 // Подробная статистика — только для Pro
 const WD_HEAD = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 function ProStats({ state, program, goal }) {
   const { answered, correct } = state.stats
   const acc = answered ? Math.round((correct / answered) * 100) : 0
@@ -71,11 +72,15 @@ function ProStats({ state, program, goal }) {
         <div className="ps-cal">
           {WD_HEAD.map((d) => <em key={d}>{d}</em>)}
           {Array.from({ length: lead }, (_, i) => <i key={`b${i}`} className="blank" />)}
-          {cells.map((c, i) => (
-            <i key={c.date} className={`l${level(c.xp)} ${i === cells.length - 1 ? 'today' : ''}`} title={`${c.date}: ${c.xp} XP`}>
-              <span>{Number(c.date.slice(-2))}</span>
-            </i>
-          ))}
+          {cells.map((c, i) => {
+            const day = Number(c.date.slice(-2)), other = c.date.slice(5, 7) !== cells[cells.length - 1].date.slice(5, 7)
+            return (
+              <i key={c.date} className={`l${level(c.xp)} ${i === cells.length - 1 ? 'today' : ''} ${other ? 'om' : ''}`} title={`${c.date}: ${c.xp} XP`}>
+                <span>{day}</span>
+                {day === 1 && <small>{tr(MONTHS_SHORT[Number(c.date.slice(5, 7)) - 1])}</small>}
+              </i>
+            )
+          })}
         </div>
       </section>
 
@@ -167,15 +172,21 @@ export default function Profile({
             <h1 className="profile-name">{profile.name || tr('Географ')}</h1>
             <p className="profile-handle">{username ? `@${username}` : emailOf(uid) || tr('локальный аккаунт')}</p>
             <div className="profile-badges">
-              <span className="badge">{tr(levelTitle(state.xp))}</span>
               {state.pro && <span className="badge gold"><Icon name="crown" size={12} /> Pro</span>}
             </div>
+            {(profile.country || profile.favorite || state.joined) && (
+              <p className="pf-meta">
+                {profile.country && <span><Icon name="pin" size={13} />{nameOf(profile.country)}</span>}
+                {profile.favorite && <span><Icon name="flag" size={13} />{nameOf(profile.favorite)}</span>}
+                {state.joined && <span><Icon name="calendar" size={13} />{`${SINCE[getLang()] ?? 'С'} ${fmt(state.joined)}`}</span>}
+              </p>
+            )}
             <button type="button" className="pf-edit-btn" onClick={() => setEdit(true)}><Icon name="edit" size={15} />{tr('Изменить профиль')}</button>
           </div>
         </div>
 
         <StatTiles items={[
-          ['award', TILE_COLORS.level, lv, tr('уровень')], ['zap', TILE_COLORS.xp, state.xp, 'XP'], ['flame', TILE_COLORS.streak, liveStreak(state), tr('серия')], ['target', TILE_COLORS.acc, accuracy == null ? null : `${accuracy}%`, tr('точность')],
+          ['medal', TILE_COLORS.level, state.bestStreak ?? 0, tr('рекорд')], ['zap', TILE_COLORS.xp, state.xp, 'XP'], ['flame', TILE_COLORS.streak, liveStreak(state), tr('серия')], ['target', TILE_COLORS.acc, accuracy == null ? null : `${accuracy}%`, tr('точность')],
           ['calendar', TILE_COLORS.week, weekXp, tr('за неделю')], ['timer', TILE_COLORS.blitz, state.records?.blitz ?? 0, tr('блиц')], ['book', TILE_COLORS.lessons, lessonsDone, tr('уроков')], ['trophy', TILE_COLORS.awards, got.length, tr('наград')],
         ]} />
 
@@ -254,17 +265,6 @@ export default function Profile({
             ))}
           </div>
 
-          <div className="profile-meta">
-            {profile.country && (
-              <span><Icon name="pin" size={13} />{nameOf(profile.country)}</span>
-            )}
-            {profile.favorite && (
-              <span><Icon name="flag" size={13} />{nameOf(profile.favorite)}</span>
-            )}
-            {state.joined && (
-              <span><Icon name="calendar" size={13} />{`${SINCE[getLang()] ?? 'С'} ${fmt(state.joined)}`}</span>
-            )}
-          </div>
         </div>
       )}
 
@@ -332,15 +332,17 @@ export default function Profile({
 
       {tab === 'ach' && (
         <div className="profile-panel">
-          <h2 className="section-title">{tr('Достижения')} · {got.length}/{achievements.length}</h2>
-          <div className="ach-grid">
-            {achievements.map((a) => {
+          <div className="ach-top">
+            <div><b>{got.length}</b><span>/ {achievements.length}</span><small>{tr('достижений получено')}</small></div>
+            <ProgressBar value={got.length} max={achievements.length} />
+          </div>
+          <div className="ach-grid ach-compact">
+            {[...achievements].sort((x, y) => got.some((g) => g.id === y.id) - got.some((g) => g.id === x.id)).map((a) => {
               const on = got.some((g) => g.id === a.id)
               return (
                 <button type="button" key={a.id} className={`ach ${on ? 'on' : ''}`} onClick={() => setSelAch(a)}>
-                  <Tile name={a.icon} color={on ? a.color || '#16a34a' : '#94a3b8'} size={40} />
+                  <Tile name={on ? a.icon : 'lock'} color={on ? a.color || '#16a34a' : '#94a3b8'} size={44} />
                   <b>{a.title}</b>
-                  <small>{a.text}</small>
                 </button>
               )
             })}

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { geoCircle, geoContains, geoDistance, geoGraticule10, geoOrthographic, geoPath } from 'd3-geo'
 import { COUNTRIES, PRESETS, nameOf } from '../data/world'
+import { ISLANDS } from '../data/islands'
 import { Icon } from './Icon'
 
 // Глобус на canvas: рисуем только по необходимости, камера — в ref (без перерисовок React).
@@ -16,17 +17,21 @@ const wrap = (d) => ((((d + 180) % 360) + 360) % 360) - 180
 // камера по стране: центр + масштаб так, чтобы страна занимала ~половину диаметра
 const focusCam = (c) => [c.c[0], c.c[1], clamp(51 / c.size, 1.2, 14)]
 
-export default function WorldMap({ mode = 'find', region = 'world', picked = null, answer, selected = null, onSelect, hinted, focusId }) {
+// shapes='islands': вместо стран выбираются и подсвечиваются острова (страны остаются фоном)
+export default function WorldMap({ mode = 'find', region = 'world', picked = null, answer, selected = null, onSelect, hinted, focusId, shapes }) {
+  const extra = shapes === 'islands' ? ISLANDS : null
+  const list = extra ?? COUNTRIES
+  const label = (id) => extra?.find((x) => x.id === id)?.name ?? nameOf(id)
   const show = mode === 'show'
   const done = picked != null
   const ok = picked === answer
-  const target = COUNTRIES.find((c) => c.id === answer)
+  const target = list.find((c) => c.id === answer)
   const box = useRef(null), cv = useRef(null)
   const cam = useRef(show ? focusCam(target) : PRESETS.find((p) => p.key === region)?.cam ?? PRESETS[0].cam) // [λ, φ, k]
   const to = useRef(null), t0 = useRef(0), from = useRef(null)
   const fx = useRef({ start: 0 }) // время начала эффекта ответа
   const props = useRef({})
-  props.current = { show, done, ok, answer, picked, selected, hinted, target }
+  props.current = { show, done, ok, answer, picked, selected, hinted, target, list, extra, label }
   const draw = useRef(() => {})
   const raf = useRef(0)
   const kick = () => { if (!raf.current) raf.current = requestAnimationFrame(frame) }
@@ -72,8 +77,10 @@ export default function WorldMap({ mode = 'find', region = 'world', picked = nul
       const t = now - fx.current.start
       ctx.lineJoin = 'round'
       const special = []
+      const stOf = (c) => P.show ? (c.id === P.answer ? 'focus' : '') : !P.done ? (c.id === P.selected ? 'sel' : '') : c.id === P.answer ? 'right' : c.id === P.picked ? 'wrong' : 'dim'
+      if (P.extra) for (const c of P.extra) { const st = stOf(c); if (st && st !== 'dim') special.push([c, st]) }
       for (const c of COUNTRIES) {
-        const st = P.show ? (c.id === P.answer ? 'focus' : '') : !P.done ? (c.id === P.selected ? 'sel' : '') : c.id === P.answer ? 'right' : c.id === P.picked ? 'wrong' : 'dim'
+        const st = P.extra ? (P.done && !P.show ? 'dim' : '') : P.show ? (c.id === P.answer ? 'focus' : '') : !P.done ? (c.id === P.selected ? 'sel' : '') : c.id === P.answer ? 'right' : c.id === P.picked ? 'wrong' : 'dim'
         if (st && st !== 'dim') { special.push([c, st]); continue }
         ctx.beginPath(); path(c.f)
         ctx.globalAlpha = st === 'dim' ? 0.45 : 1
@@ -112,11 +119,11 @@ export default function WorldMap({ mode = 'find', region = 'world', picked = nul
       if (P.done && !P.show) { // подписи-«таблетки»: верный ответ и выбранная страна
         const fam = getComputedStyle(document.body).fontFamily || 'system-ui, sans-serif'
         ctx.font = `800 15px ${fam}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-        for (const c of COUNTRIES) {
+        for (const c of P.list) {
           if (c.id !== P.answer && c.id !== P.picked) continue
           if (geoDistance(c.c, cam.current) > 1.4) continue // на обратной стороне глобуса
           const p = proj(c.c); if (!p) continue
-          const ok = c.id === P.answer, label = nameOf(c.id)
+          const ok = c.id === P.answer, label = P.label(c.id)
           const u = Math.min(1, Math.max(0, (t - (ok ? 150 : 0)) / 320)), e = 1 - Math.pow(1 - u, 3)
           const tw = ctx.measureText(label).width + 20, th = 26, x = p[0] - tw / 2, y = p[1] - th / 2 - 4 * (1 - e)
           ctx.globalAlpha = e
@@ -164,7 +171,7 @@ export default function WorldMap({ mode = 'find', region = 'world', picked = nul
       if (tap && !props.current.show && !props.current.done) {
         const r = el.getBoundingClientRect(); place()
         const ll = proj.invert([e.clientX - r.left, e.clientY - r.top])
-        const hit = ll && !isNaN(ll[0]) && COUNTRIES.find((c) => geoContains(c.f, ll))
+        const hit = ll && !isNaN(ll[0]) && props.current.list.find((c) => geoContains(c.f, ll))
         if (hit) onPick.current(hit.id)
       }
       if (!ptrs.size) g = null
@@ -187,7 +194,7 @@ export default function WorldMap({ mode = 'find', region = 'world', picked = nul
   return (
     <div className="mapcard" ref={box}>
       <canvas ref={cv} className={`map ${show ? 'static' : ''}`} role="img" aria-label="Глобус" />
-      <div className="mappill">{show ? 'Какая это страна?' : done ? `Верный ответ: ${nameOf(answer)}` : selected ? `${nameOf(selected)}` : 'Вращайте глобус и коснитесь страны'}</div>
+      <div className="mappill">{show ? (extra ? 'Какой это остров?' : 'Какая это страна?') : done ? `Верный ответ: ${label(answer)}` : selected ? `${label(selected)}` : extra ? 'Вращайте глобус и коснитесь острова' : 'Вращайте глобус и коснитесь страны'}</div>
       <div className="mapctl">
         <button onClick={() => zoom(1.8)} aria-label="Приблизить"><Icon name="plus" size={18} /></button>
         <button onClick={() => zoom(1 / 1.8)} aria-label="Отдалить"><Icon name="minus" size={18} /></button>
