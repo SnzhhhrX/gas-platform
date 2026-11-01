@@ -90,6 +90,7 @@ function Analysis({ onDone, skipped }) {
           })}
         </div>
         <span className="pl-core"><Mascot mood={done ? 'cheer' : 'think'} size={88} /></span>
+        {done && <span className="pl-done"><Icon name="check" size={18} /></span>}
       </div>
       <b className="pl-pct">{Math.round(p * 100)}%</b>
       <h1 key={done ? 'done' : 'work'} className="pl-phase">{done ? 'Программа готова' : 'Готовим вашу программу'}</h1>

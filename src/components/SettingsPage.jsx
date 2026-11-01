@@ -145,7 +145,16 @@ export default function SettingsPage({
     return (
       <SettingsSection title="Обучение" onBack={() => setSection(null)}>
         <div className="card group menu">
-          <button onClick={retake}>
+          <button
+            onClick={() =>
+              setAsk({
+                title: 'Пройти тест уровня заново?',
+                text: 'Текущая программа и результат теста будут заменены новыми — вернуть их нельзя. Пройденные уроки и XP сохранятся.',
+                ok: 'Пройти заново',
+                onOk: retake,
+              })
+            }
+          >
             <Icon name="redo" size={18} />
             <span>
               <b>Пройти тест уровня снова</b>
